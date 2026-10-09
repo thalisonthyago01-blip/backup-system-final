@@ -1,0 +1,4 @@
+httpx
+pyinstaller
+pystray
+Pillow

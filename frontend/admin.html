@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backup System — Administração</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --azul:#1a73e8;--azul-h:#1765cc;--azul-claro:#e8f0fe;--azul-txt:#0b57d0;
+  --tx:#1f1f1f;--tx2:#444746;--mut:#5f6368;--bd:#dadce0;--bd2:#e0e3e7;
+  --faixa:#f1f3f4;--hover:#f1f3f4;--busca:#e9eef6;
+  --ok:#137333;--ok-bg:#e6f4ea;--er:#b3261e;
+  --sombra1:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+  --sombra2:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);
+  --fonte:"Google Sans","Roboto","Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#fff;color:var(--tx);font:14px/1.45 var(--fonte);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+button:disabled{opacity:.45;cursor:default}
+svg{display:block;flex:none}
+
+/* ===== Botões ===== */
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 24px;border-radius:20px;font-weight:500;font-size:14px;letter-spacing:.1px;transition:background .15s,box-shadow .15s}
+.btn.pri{background:var(--azul);color:#fff}
+.btn.pri:hover:not(:disabled){background:var(--azul-h);box-shadow:var(--sombra1)}
+.btn.txt{color:var(--azul-txt);padding:0 14px}
+.btn.txt:hover:not(:disabled){background:var(--azul-claro)}
+.icone-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--tx2)}
+.icone-btn:hover{background:rgba(68,71,70,.08)}
+
+/* ===== Login (estilo tela de conta Google) ===== */
+.tela-login{min-height:100vh;display:grid;place-items:center;background:#f0f4f9;padding:24px}
+.login-wrap{width:min(1040px,100%)}
+.cartao-login{width:100%;background:#fff;border-radius:28px;padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:24px;min-height:384px}
+.cartao-login .lado-a h1{font-size:36px;font-weight:400;line-height:44px;margin:24px 0 16px}
+.cartao-login .lado-a p{font-size:16px;color:var(--tx2);margin:0}
+.cartao-login .lado-b{padding-top:72px;display:flex;flex-direction:column}
+.logo{width:48px;height:48px}
+.campo-flutuante{position:relative;margin-bottom:22px}
+.campo-flutuante input{width:100%;height:56px;border:1px solid #747775;border-radius:4px;padding:0 15px;font-size:16px;outline:none;background:#fff;transition:border-color .15s}
+.campo-flutuante label{position:absolute;left:12px;top:17px;padding:0 4px;background:#fff;color:var(--tx2);font-size:16px;pointer-events:none;transition:all .15s ease;max-width:calc(100% - 24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.campo-flutuante input:focus{border:2px solid var(--azul);padding-left:14px}
+.campo-flutuante input:focus+label,.campo-flutuante input:not(:placeholder-shown)+label{top:-9px;font-size:12px;line-height:16px}
+.campo-flutuante input:focus+label{color:var(--azul)}
+.mostrar-senha{display:flex;align-items:center;gap:12px;color:var(--tx);cursor:pointer;margin:-6px 0 8px;user-select:none;width:max-content}
+.mostrar-senha input{width:18px;height:18px;accent-color:var(--azul);margin:0}
+.msg-erro{min-height:20px;color:var(--er);font-size:13px;display:flex;align-items:center;gap:8px;margin:8px 0}
+.acoes-login{margin-top:auto;display:flex;justify-content:flex-end;align-items:center;gap:8px;padding-top:24px}
+.rodape-login{width:100%;display:flex;justify-content:space-between;color:var(--tx2);font-size:12px;padding:16px 8px 0}
+
+/* ===== Barra superior ===== */
+.topo{position:sticky;top:0;z-index:5;height:64px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 16px 0 12px;border-bottom:1px solid transparent;transition:border-color .2s}
+.topo.rolou{border-bottom-color:var(--bd2)}
+.marca{display:flex;align-items:center;gap:6px;min-width:220px;padding-left:4px;flex:none}
+.marca .logo{width:40px;height:40px}
+.marca span{font-size:22px;color:var(--tx2);line-height:24px}
+.busca{flex:1;min-width:0;max-width:720px;height:48px;background:var(--busca);border-radius:24px;display:flex;align-items:center;padding:0 6px;transition:background .15s,box-shadow .15s}
+.busca:focus-within{background:#fff;box-shadow:var(--sombra1)}
+.busca input{flex:1;border:0;outline:0;background:transparent;font-size:16px;padding:0 6px;min-width:0}
+.busca input::placeholder{color:var(--tx2)}
+.topo-dir{margin-left:auto;display:flex;align-items:center;gap:4px}
+.avatar{width:32px;height:32px;border-radius:50%;background:#7b1fa2;color:#fff;display:grid;place-items:center;font-weight:500;font-size:15px;text-transform:uppercase}
+.btn-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;margin-left:4px}
+.btn-avatar:hover{background:rgba(68,71,70,.08)}
+
+/* Menu da conta */
+.menu-conta{position:fixed;top:60px;right:16px;z-index:20;width:320px;max-width:calc(100% - 32px);background:#e9eef6;border-radius:28px;padding:16px;box-shadow:var(--sombra2);text-align:center}
+.menu-conta .avatar{width:72px;height:72px;font-size:32px;margin:8px auto 10px}
+.menu-conta .nome{font-size:20px;color:var(--tx);margin-bottom:2px}
+.menu-conta .papel{color:var(--tx2);margin-bottom:16px}
+.menu-conta .btn{width:100%;justify-content:center;background:#fff;color:var(--tx)}
+.menu-conta .btn:hover{background:#f8fafd}
+
+/* ===== Faixa de máquinas (como "Iniciar um novo documento") ===== */
+.faixa{background:var(--faixa);padding:18px 0 22px}
+.largura{max-width:1100px;margin:0 auto;padding:0 24px}
+.faixa-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.faixa-topo h2{font-size:16px;font-weight:400;color:var(--tx);margin:0}
+.faixa-topo .contador{color:var(--mut);margin-left:6px}
+.grade-maquinas{display:flex;gap:18px;overflow-x:auto;padding:4px 4px 6px;scrollbar-width:thin}
+.maquina{flex:none;width:156px;text-align:left;padding:0;border-radius:4px}
+.miniatura{width:156px;height:200px;background:#fff;border:1px solid var(--bd);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;transition:border-color .15s,box-shadow .15s}
+.maquina:hover .miniatura{border-color:#aecbfa}
+.maquina.ativa .miniatura{border:2px solid var(--azul);box-shadow:0 0 0 2px #d2e3fc}
+.miniatura .os{position:absolute;top:10px;left:10px;font-size:11px;color:var(--mut)}
+.miniatura .pastas-qtd{font-size:12px;color:var(--tx2);text-align:center;line-height:1.3}
+.miniatura .pastas-qtd b{display:block;font-size:26px;font-weight:400;color:var(--azul)}
+.maquina .nome{display:block;font-weight:500;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.maquina .sub{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:12px;margin:2px 2px 0}
+.ponto{width:8px;height:8px;border-radius:50%;background:#bdc1c6;flex:none}
+.ponto.on{background:#1e8e3e;box-shadow:0 0 0 3px #ceead6}
+.vazio-faixa{background:#fff;border:1px dashed var(--bd);border-radius:8px;padding:28px;color:var(--mut);text-align:center;width:100%}
+
+/* ===== Lista de pastas (como "Documentos recentes") ===== */
+.conteudo{padding:20px 0 100px}
+.lista-topo{margin-bottom:6px}
+.lista-topo h3{margin:0;font-size:16px;font-weight:500}
+.lista-topo .detalhe{color:var(--mut);font-size:12px;margin-top:2px;word-break:break-all}
+.cab,.linha{display:grid;grid-template-columns:minmax(160px,1.1fr) minmax(200px,2fr) 120px 104px;align-items:center;gap:12px;padding:0 12px}
+.cab{height:44px;color:var(--tx2);font-weight:500;border-bottom:1px solid var(--bd2);margin-bottom:4px}
+.linha{min-height:52px;border-radius:24px;transition:background .12s}
+.linha:hover{background:var(--hover)}
+.linha+.linha{margin-top:2px}
+.c-nome{display:flex;align-items:center;gap:14px;font-weight:500;min-width:0}
+.c-nome span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-caminho{font-family:"Roboto Mono",Consolas,monospace;font-size:12.5px;color:var(--tx2);word-break:break-all}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:500}
+.chip.on{background:var(--ok-bg);color:var(--ok)}
+.chip.off{background:#eceff1;color:var(--tx2)}
+
+/* Switch Material */
+.switch{position:relative;width:52px;height:32px;border-radius:16px;background:#e1e3e1;border:2px solid #747775;transition:background .2s,border-color .2s;justify-self:end}
+.switch::after{content:"";position:absolute;top:50%;left:6px;width:16px;height:16px;border-radius:50%;background:#747775;transform:translateY(-50%);transition:all .2s}
+.switch[aria-checked="true"]{background:var(--azul);border-color:var(--azul)}
+.switch[aria-checked="true"]::after{left:22px;width:24px;height:24px;background:#fff}
+.switch:hover:not(:disabled)::after{box-shadow:0 0 0 8px rgba(68,71,70,.08)}
+.switch:focus-visible{outline:2px solid var(--azul);outline-offset:3px}
+.folder-acoes{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.btn-excluir{width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:#5f6368;display:flex;align-items:center;justify-content:center}
+.btn-excluir:hover:not(:disabled){background:#fce8e6;color:#c5221f}
+.btn-excluir:focus-visible{outline:2px solid #c5221f;outline-offset:2px}
+.btn-excluir:disabled{opacity:.45;cursor:default}
+
+.vazio{padding:56px 24px;text-align:center;color:var(--mut)}
+.vazio svg{margin:0 auto 14px}
+.vazio strong{display:block;color:var(--tx);font-weight:500;font-size:16px;margin-bottom:4px}
+
+/* Botão flutuante */
+.fab{position:fixed;right:28px;bottom:28px;height:56px;border-radius:16px;padding:0 20px 0 16px;background:#c2e7ff;color:#001d35;display:flex;align-items:center;gap:12px;font-weight:500;box-shadow:var(--sombra2);transition:box-shadow .15s,background .15s,opacity .2s;z-index:4}
+.fab:hover:not(:disabled){background:#b3dcf5}
+.fab:disabled{opacity:0;pointer-events:none}
+
+/* ===== Diálogo ===== */
+.modal{border:0;border-radius:28px;padding:0;width:min(520px,calc(100% - 32px));background:#fff;box-shadow:var(--sombra2)}
+.modal::backdrop{background:rgba(32,33,36,.6)}
+.modal-body{padding:24px 24px 18px}
+.modal h3{margin:0 0 6px;font-size:24px;font-weight:400}
+.modal .sub{color:var(--tx2);margin:0 0 24px}
+.modal .acoes{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+
+/* ===== Snackbar ===== */
+.snackbar{position:fixed;left:24px;bottom:24px;z-index:30;min-width:288px;max-width:min(560px,calc(100% - 48px));background:#323232;color:#f2f2f2;border-radius:4px;padding:14px 16px;box-shadow:var(--sombra2);transform:translateY(20px);opacity:0;transition:all .2s;pointer-events:none}
+.snackbar.vis{transform:none;opacity:1}
+
+/* Barra de carregamento */
+.barra-progresso{position:fixed;top:0;left:0;right:0;height:3px;z-index:40;overflow:hidden;opacity:0;transition:opacity .2s}
+.barra-progresso.vis{opacity:1}
+.barra-progresso::before{content:"";position:absolute;inset:0;width:40%;background:var(--azul);animation:corre 1.1s infinite ease-in-out}
+@keyframes corre{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+
+/* ===== Abas (Máquinas / Administradores) ===== */
+.abas{position:sticky;top:64px;z-index:4;background:#fff;border-bottom:1px solid var(--bd2);display:flex;gap:4px;padding:0 24px}
+.aba{position:relative;height:48px;padding:0 16px;display:flex;align-items:center;gap:8px;color:var(--tx2);font-weight:500;border-radius:8px 8px 0 0}
+.aba:hover{background:var(--hover)}
+.aba[aria-selected="true"]{color:var(--azul-txt)}
+.aba[aria-selected="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--azul-txt)}
+.topo.com-abas{border-bottom-color:transparent!important}
+
+/* ===== Lista de administradores ===== */
+.adm-cab,.adm-linha{display:grid;grid-template-columns:minmax(200px,1.6fr) 1fr 1fr 110px 112px;align-items:center;gap:12px;padding:0 12px}
+.adm-cab{height:44px;color:var(--tx2);font-weight:500;border-bottom:1px solid var(--bd2);margin-bottom:4px}
+.adm-linha{min-height:56px;border-radius:28px;transition:background .12s}
+.adm-linha:hover{background:var(--hover)}
+.adm-linha+.adm-linha{margin-top:2px}
+.adm-linha.inativo .a-nome,.adm-linha.inativo .a-data{opacity:.55}
+.a-nome{display:flex;align-items:center;gap:14px;font-weight:500;min-width:0}
+.a-nome .avatar{width:32px;height:32px;font-size:14px}
+.a-nome span.txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a-data{color:var(--tx2);font-size:13px}
+.a-acoes{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.chip.voce{background:var(--azul-claro);color:var(--azul-txt);margin-left:2px}
+.secao-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:6px}
+.secao-topo h3{margin:0;font-size:16px;font-weight:500}
+.secao-topo .detalhe{color:var(--mut);font-size:12px;margin-top:2px}
+.dica-senha{font-size:12px;color:var(--tx2);margin:-14px 0 18px 16px}
+.forca{height:4px;border-radius:2px;background:#e8eaed;margin:-14px 0 6px;overflow:hidden}
+.forca i{display:block;height:100%;width:0;transition:width .2s,background .2s}
+.setup-aviso{display:flex;gap:10px;align-items:flex-start;background:var(--azul-claro);color:#174ea6;border-radius:12px;padding:12px 14px;margin:20px 0 0;font-size:13px}
+
+@media(max-width:860px){
+  .cartao-login{grid-template-columns:1fr;padding:24px}
+  .cartao-login .lado-b{padding-top:0}
+  .marca{min-width:0}.marca span{display:none}
+  .cab{display:none}
+  .linha{grid-template-columns:1fr auto;grid-template-areas:"nome acoes" "cam cam" "est est";padding:12px 14px;border-radius:16px;row-gap:4px}
+  .linha .c-nome{grid-area:nome}.linha .c-caminho{grid-area:cam}.linha .c-est{grid-area:est}.linha .folder-acoes{grid-area:acoes}
+  .largura{padding:0 16px}
+  .fab span{display:none}.fab{padding:0 16px}
+  .abas{padding:0 8px}
+  .adm-cab{display:none}
+  .adm-linha{grid-template-columns:1fr auto;grid-template-areas:"nome acoes" "datas datas";padding:10px 14px;border-radius:16px;row-gap:2px}
+  .adm-linha .a-nome{grid-area:nome}.adm-linha .a-acoes{grid-area:acoes}
+  .adm-linha .a-criado{display:none}.adm-linha .a-acesso{grid-area:datas;padding-left:46px}.adm-linha .a-status{display:none}
+}
+</style>
+</head>
+<body>
+<div class="barra-progresso" id="progresso"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 48 48">
+      <path d="M12 4h17l11 11v27a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#1a73e8"/>
+      <path d="M29 4l11 11h-9a2 2 0 0 1-2-2z" fill="#8ab4f8"/>
+      <path d="M25 20.5a7.5 7.5 0 1 1-6.9 4.6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M16.5 22.5l1.8 3.4 3.4-1.8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M25 24.5v4l2.6 1.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-pc" viewBox="0 0 24 24"><path fill="currentColor" d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></symbol>
+    <symbol id="i-pasta" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+    <symbol id="i-atualizar" viewBox="0 0 24 24"><path fill="currentColor" d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></symbol>
+    <symbol id="i-mais" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    <symbol id="i-erro" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+    <symbol id="i-sair" viewBox="0 0 24 24"><path fill="currentColor" d="m17 7-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></symbol>
+    <symbol id="i-pessoas" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+    <symbol id="i-pessoa-add" viewBox="0 0 24 24"><path fill="currentColor" d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol>
+    <symbol id="i-chave" viewBox="0 0 24 24"><path fill="currentColor" d="M12.65 10A5.99 5.99 0 0 0 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6a5.99 5.99 0 0 0 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><path fill="currentColor" d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></symbol>
+    <symbol id="i-lixeira" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+  </defs>
+</svg>
+
+<!-- ===================== LOGIN ===================== -->
+<section class="tela-login" id="login">
+  <div class="login-wrap">
+    <div class="cartao-login">
+      <div class="lado-a">
+        <svg class="logo"><use href="#i-logo"/></svg>
+        <h1 id="loginTitulo">Fazer login</h1>
+        <p id="loginTexto">Acesse a administração do Backup System para gerenciar máquinas e pastas.</p>
+        <div class="setup-aviso" id="setupAviso" hidden><svg width="20" height="20"><use href="#i-info"/></svg><span>Nenhum administrador foi cadastrado ainda. A conta criada aqui será o primeiro administrador e poderá cadastrar os demais pelo painel.</span></div>
+      </div>
+      <div class="lado-b">
+        <div class="campo-flutuante">
+          <input id="usuario" autocomplete="username" placeholder=" ">
+          <label for="usuario">Usuário</label>
+        </div>
+        <div class="campo-flutuante">
+          <input id="senha" type="password" autocomplete="current-password" placeholder=" ">
+          <label for="senha">Senha</label>
+        </div>
+        <div class="campo-flutuante" id="campoConfirma" hidden>
+          <input id="senhaConfirma" type="password" autocomplete="new-password" placeholder=" ">
+          <label for="senhaConfirma">Confirmar senha</label>
+        </div>
+        <div class="dica-senha" id="dicaSetup" hidden>Use 8 ou mais caracteres. Usuário: letras minúsculas, números, ponto, hífen ou sublinhado.</div>
+        <label class="mostrar-senha"><input type="checkbox" id="verSenha"> Mostrar senha</label>
+        <div class="msg-erro" id="loginMsgBox" hidden><svg width="16" height="16"><use href="#i-erro"/></svg><span id="loginMsg"></span></div>
+        <div class="acoes-login">
+          <button class="btn pri" id="entrar">Entrar</button>
+        </div>
+      </div>
+    </div>
+    <div class="rodape-login"><span>Português (Brasil)</span><span>Backup System · Administração</span></div>
+  </div>
+</section>
+
+<!-- ===================== APLICAÇÃO ===================== -->
+<div id="app" hidden>
+  <header class="topo com-abas" id="topo">
+    <div class="marca"><svg class="logo"><use href="#i-logo"/></svg><span>Backup</span></div>
+    <label class="busca">
+      <span class="icone-btn"><svg width="24" height="24"><use href="#i-busca"/></svg></span>
+      <input id="busca" placeholder="Pesquisar máquinas e pastas" autocomplete="off">
+      <button class="icone-btn" id="limparBusca" title="Limpar pesquisa" hidden><svg width="24" height="24"><use href="#i-fechar"/></svg></button>
+    </label>
+    <div class="topo-dir">
+      <button class="icone-btn" id="atualizar" title="Atualizar"><svg width="24" height="24"><use href="#i-atualizar"/></svg></button>
+      <button class="btn-avatar" id="btnConta" title="Conta do administrador"><span class="avatar" id="avatar">A</span></button>
+    </div>
+  </header>
+
+  <nav class="abas" role="tablist">
+    <button class="aba" role="tab" id="abaMaquinas" aria-selected="true"><svg width="20" height="20"><use href="#i-pc"/></svg>Máquinas</button>
+    <button class="aba" role="tab" id="abaAdmins" aria-selected="false"><svg width="20" height="20"><use href="#i-pessoas"/></svg>Administradores</button>
+  </nav>
+
+  <div class="menu-conta" id="menuConta" hidden>
+    <div class="avatar" id="avatarGrande">A</div>
+    <div class="nome" id="adminNome">Administrador</div>
+    <div class="papel">Administrador do Backup System</div>
+    <button class="btn" id="irAdmins" style="margin-bottom:8px"><svg width="20" height="20"><use href="#i-pessoas"/></svg>Gerenciar administradores</button>
+    <button class="btn" id="minhaSenha" style="margin-bottom:8px"><svg width="20" height="20"><use href="#i-chave"/></svg>Alterar minha senha</button>
+    <button class="btn" id="sair"><svg width="20" height="20"><use href="#i-sair"/></svg>Sair</button>
+  </div>
+
+  <div id="viewMaquinas">
+  <section class="faixa">
+    <div class="largura">
+      <div class="faixa-topo">
+        <h2>Máquinas registradas<span class="contador" id="contador"></span></h2>
+      </div>
+      <div class="grade-maquinas" id="maquinas"></div>
+    </div>
+  </section>
+
+  <main class="conteudo">
+    <div class="largura">
+      <div class="lista-topo">
+        <h3 id="tituloMaquina">Selecione uma máquina</h3>
+        <div class="detalhe" id="detalheMaquina"></div>
+      </div>
+      <div class="cab" id="cabecalho" hidden><span>Pasta</span><span>Caminho</span><span>Status</span><span style="text-align:right">Ações</span></div>
+      <div id="listaPastas"></div>
+    </div>
+  </main>
+  </div>
+
+  <main class="conteudo" id="viewAdmins" hidden>
+    <div class="largura">
+      <div class="secao-topo">
+        <div>
+          <h3>Administradores</h3>
+          <div class="detalhe" id="adminsDetalhe">Pessoas que podem entrar neste painel.</div>
+        </div>
+      </div>
+      <div class="adm-cab" id="adminsCab" hidden><span>Usuário</span><span>Criado em</span><span>Último acesso</span><span>Status</span><span style="text-align:right">Ações</span></div>
+      <div id="listaAdmins"></div>
+    </div>
+  </main>
+
+  <button class="fab" id="novaPasta" disabled title="Adicionar pasta"><svg width="24" height="24"><use href="#i-mais"/></svg><span>Adicionar pasta</span></button>
+  <button class="fab" id="novoAdmin" title="Novo administrador" hidden><svg width="24" height="24"><use href="#i-pessoa-add"/></svg><span>Novo administrador</span></button>
+</div>
+
+<dialog class="modal" id="dialogPasta">
+  <div class="modal-body">
+    <h3>Adicionar pasta</h3>
+    <p class="sub" id="dialogSub">A pasta ficará disponível para backup nesta máquina.</p>
+    <div class="campo-flutuante">
+      <input id="pastaPath" placeholder=" " autocomplete="off">
+      <label for="pastaPath">Caminho completo (ex.: C:\Users\Usuario\Downloads)</label>
+    </div>
+    <div class="campo-flutuante">
+      <input id="pastaLabel" placeholder=" " autocomplete="off">
+      <label for="pastaLabel">Nome exibido</label>
+    </div>
+    <div class="msg-erro" id="pastaMsgBox" hidden><svg width="16" height="16"><use href="#i-erro"/></svg><span id="pastaMsg"></span></div>
+    <div class="acoes"><button class="btn txt" id="cancelar">Cancelar</button><button class="btn pri" id="salvar">Adicionar</button></div>
+  </div>
+</dialog>
+
+<dialog class="modal" id="dialogAdmin">
+  <div class="modal-body">
+    <h3>Novo administrador</h3>
+    <p class="sub">A pessoa poderá entrar neste painel e gerenciar máquinas, pastas e outros administradores.</p>
+    <div class="campo-flutuante">
+      <input id="novoUsuario" placeholder=" " autocomplete="off" autocapitalize="none" spellcheck="false">
+      <label for="novoUsuario">Usuário</label>
+    </div>
+    <div class="campo-flutuante">
+      <input id="novaSenha" type="password" placeholder=" " autocomplete="new-password">
+      <label for="novaSenha">Senha</label>
+    </div>
+    <div class="forca"><i id="forcaBarra"></i></div>
+    <div class="dica-senha" id="forcaTexto" style="margin-top:0">Use 8 ou mais caracteres.</div>
+    <div class="campo-flutuante">
+      <input id="novaSenhaConfirma" type="password" placeholder=" " autocomplete="new-password">
+      <label for="novaSenhaConfirma">Confirmar senha</label>
+    </div>
+    <label class="mostrar-senha"><input type="checkbox" id="verNovaSenha"> Mostrar senha</label>
+    <div class="msg-erro" id="adminMsgBox" hidden><svg width="16" height="16"><use href="#i-erro"/></svg><span id="adminMsg"></span></div>
+    <div class="acoes"><button class="btn txt" id="cancelarAdmin">Cancelar</button><button class="btn pri" id="salvarAdmin">Cadastrar</button></div>
+  </div>
+</dialog>
+
+<dialog class="modal" id="dialogSenha">
+  <div class="modal-body">
+    <h3 id="senhaTitulo">Redefinir senha</h3>
+    <p class="sub" id="senhaSub"></p>
+    <div class="campo-flutuante">
+      <input id="trocaSenha" type="password" placeholder=" " autocomplete="new-password">
+      <label for="trocaSenha">Nova senha</label>
+    </div>
+    <div class="campo-flutuante">
+      <input id="trocaSenhaConfirma" type="password" placeholder=" " autocomplete="new-password">
+      <label for="trocaSenhaConfirma">Confirmar nova senha</label>
+    </div>
+    <label class="mostrar-senha"><input type="checkbox" id="verTrocaSenha"> Mostrar senha</label>
+    <div class="msg-erro" id="senhaMsgBox" hidden><svg width="16" height="16"><use href="#i-erro"/></svg><span id="senhaMsg"></span></div>
+    <div class="acoes"><button class="btn txt" id="cancelarSenha">Cancelar</button><button class="btn pri" id="salvarSenha">Salvar senha</button></div>
+  </div>
+</dialog>
+
+<div class="snackbar" id="snackbar" role="status" aria-live="polite"></div>
+
+<script>
+const API="/api";
+const $=id=>document.getElementById(id);
+const ONLINE_MS=2*60*1000;
+let maquinaSelecionada=null;
+let maquinas=[];
+let pastasAtuais=[];
+let carregando=0;
+let nomeManual=false;
+let modoSetup=false;
+let adminAtual=null;      // {id, username}
+let admins=[];
+let abaAtual='maquinas';
+let adminSenhaAlvo=null;
+
+/* ---------- utilidades ---------- */
+function progresso(on){carregando=Math.max(0,carregando+(on?1:-1));$('progresso').classList.toggle('vis',carregando>0)}
+let timerSnack;
+function avisar(msg){const s=$('snackbar');s.textContent=msg;s.classList.add('vis');clearTimeout(timerSnack);timerSnack=setTimeout(()=>s.classList.remove('vis'),4000)}
+function msgErro(boxId,txtId,msg){$(txtId).textContent=msg||"";$(boxId).hidden=!msg}
+function icone(id,tam,cor){const ns="http://www.w3.org/2000/svg";const s=document.createElementNS(ns,'svg');s.setAttribute('width',tam);s.setAttribute('height',tam);if(cor)s.style.color=cor;const u=document.createElementNS(ns,'use');u.setAttribute('href','#'+id);s.appendChild(u);return s}
+function estaOnline(m){return !!m.last_seen && (Date.now()-new Date(m.last_seen).getTime())<ONLINE_MS}
+function tempoRelativo(iso){
+  if(!iso)return 'Sem contato';
+  const d=new Date(iso),seg=Math.round((Date.now()-d.getTime())/1000);
+  if(seg<60)return 'Visto agora mesmo';
+  const min=Math.round(seg/60);if(min<60)return 'Visto há '+min+' min';
+  const h=Math.round(min/60);if(h<24)return 'Visto há '+h+' h';
+  return 'Visto em '+d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+}
+function termoBusca(){return $('busca').value.trim().toLowerCase()}
+function ignorar401(e,fn){if(e&&e.message!=='401')fn(e.message)}
+
+/* ---------- API ---------- */
+async function requisicao(caminho, op={}){
+  progresso(true);
+  try{
+    const r=await fetch(API+caminho,{...op,headers:{"Content-Type":"application/json",...(op.headers||{})}});
+    if(r.status===401){mostrarLogin("Sessão expirada. Entre novamente.");throw new Error("401")}
+    return r;
+  }finally{progresso(false)}
+}
+async function erro(r){try{const j=await r.json();return j.detail||"Erro "+r.status}catch(e){return "Erro "+r.status}}
+
+/* ---------- telas ---------- */
+function mostrarLogin(msg=""){
+  $('login').hidden=false;$('app').hidden=true;$('menuConta').hidden=true;
+  document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+  msgErro('loginMsgBox','loginMsg',msg);
+  verificarSetup();
+  setTimeout(()=>$('usuario').focus(),0);
+}
+async function verificarSetup(){
+  let precisa=false;
+  try{const r=await fetch(API+'/admin/setup');if(r.ok)precisa=!!(await r.json()).needs_setup}catch(e){}
+  definirModoSetup(precisa);
+}
+function definirModoSetup(on){
+  modoSetup=on;
+  $('loginTitulo').textContent=on?'Criar administrador':'Fazer login';
+  $('loginTexto').textContent=on?'Primeiro acesso ao Backup System. Escolha o usuário e a senha do administrador.':'Acesse a administração do Backup System para gerenciar máquinas e pastas.';
+  $('setupAviso').hidden=!on;$('campoConfirma').hidden=!on;$('dicaSetup').hidden=!on;
+  $('senha').autocomplete=on?'new-password':'current-password';
+  $('entrar').textContent=on?'Criar e entrar':'Entrar';
+}
+function mostrarApp(){$('login').hidden=true;$('app').hidden=false}
+function definirAdmin(nome,id){
+  const n=nome||'admin';
+  adminAtual={username:n,id:id||adminAtual?.id||null};
+  $('avatar').style.background=corAvatar(n);$('avatarGrande').style.background=corAvatar(n);
+  $('avatar').textContent=n[0];$('avatarGrande').textContent=n[0];$('adminNome').textContent=n;
+}
+
+async function verificarSessao(){
+  try{const r=await requisicao("/admin/me");if(r.ok){const j=await r.json();definirAdmin(j.username,j.id);mostrarApp();await carregarMaquinas();return}}catch(e){}
+  mostrarLogin();
+}
+
+async function login(){
+  msgErro('loginMsgBox','loginMsg','');
+  if(!$('usuario').value.trim()){msgErro('loginMsgBox','loginMsg','Digite o usuário.');$('usuario').focus();return}
+  if(!$('senha').value){msgErro('loginMsgBox','loginMsg','Digite a senha.');$('senha').focus();return}
+  if(modoSetup){
+    if($('senha').value.length<8){msgErro('loginMsgBox','loginMsg','A senha deve ter pelo menos 8 caracteres.');$('senha').focus();return}
+    if($('senha').value!==$('senhaConfirma').value){msgErro('loginMsgBox','loginMsg','As senhas não coincidem.');$('senhaConfirma').focus();return}
+  }
+  $('entrar').disabled=true;progresso(true);
+  try{
+    const r=await fetch(API+(modoSetup?"/admin/setup":"/admin/login"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$('usuario').value.trim(),password:$('senha').value})});
+    if(!r.ok)throw new Error(await erro(r));
+    if(r.status===409){definirModoSetup(false);throw new Error('Um administrador já foi criado. Faça login.')}
+    const j=await r.json();
+    let id=null;try{const me=await fetch(API+'/admin/me');if(me.ok)id=(await me.json()).id}catch(e){}
+    definirAdmin(j.username,id);
+    if(modoSetup){avisar('Administrador criado. Bem-vindo, '+j.username+'!');definirModoSetup(false)}
+    $('senha').value="";$('senhaConfirma').value="";mostrarApp();mudarAba('maquinas');await carregarMaquinas();
+  }catch(e){msgErro('loginMsgBox','loginMsg',e instanceof TypeError?'Não foi possível conectar. Confira se o Docker está rodando.':e.message)}
+  finally{$('entrar').disabled=false;progresso(false)}
+}
+
+/* ---------- máquinas ---------- */
+async function carregarMaquinas(){
+  const r=await requisicao("/admin/machines");if(!r.ok)throw new Error(await erro(r));
+  maquinas=(await r.json()).machines||[];
+  if(maquinaSelecionada && !maquinas.some(m=>m.id===maquinaSelecionada))maquinaSelecionada=null;
+  if(!maquinaSelecionada && maquinas.length===1)maquinaSelecionada=maquinas[0].id;
+  desenharMaquinas();
+  await selecionarMaquina(maquinaSelecionada);
+}
+
+function desenharMaquinas(){
+  const box=$('maquinas');box.textContent='';
+  const t=termoBusca();
+  $('contador').textContent=maquinas.length?' · '+maquinas.length:'';
+  if(!maquinas.length){box.innerHTML='<div class="vazio-faixa">Nenhuma máquina registrada ainda. Abra o <b>backup-client.exe</b> em um computador para registrá-lo.</div>';return}
+  const lista=maquinas.filter(m=>!t||(m.hostname||m.id).toLowerCase().includes(t)||m.id===maquinaSelecionada);
+  lista.forEach(m=>{
+    const online=estaOnline(m);
+    const b=document.createElement('button');
+    b.className='maquina'+(m.id===maquinaSelecionada?' ativa':'');
+    b.dataset.id=m.id;
+    const mini=document.createElement('div');mini.className='miniatura';
+    const os=document.createElement('span');os.className='os';os.textContent=m.operating_system||'—';
+    const qtd=document.createElement('div');qtd.className='pastas-qtd';
+    const num=document.createElement('b');num.textContent=m.enabled_folders;
+    qtd.append(num,document.createTextNode(m.enabled_folders===1?'pasta permitida':'pastas permitidas'));
+    mini.append(os,icone('i-pc',56,'#5f6368'),qtd);
+    const nome=document.createElement('span');nome.className='nome';nome.textContent=m.hostname||m.id;
+    const sub=document.createElement('span');sub.className='sub';
+    const ponto=document.createElement('span');ponto.className='ponto'+(online?' on':'');
+    sub.append(ponto,document.createTextNode(online?'Online':tempoRelativo(m.last_seen)));
+    b.title=(m.hostname||m.id)+' — '+(m.last_seen?'último contato: '+new Date(m.last_seen).toLocaleString('pt-BR'):'sem contato registrado');
+    b.append(mini,nome,sub);
+    b.onclick=()=>selecionarMaquina(m.id).catch(e=>ignorar401(e,avisar));
+    box.appendChild(b);
+  });
+}
+
+async function selecionarMaquina(id){
+  maquinaSelecionada=id;
+  document.querySelectorAll('.maquina').forEach(b=>b.classList.toggle('ativa',b.dataset.id===id));
+  const m=maquinas.find(x=>x.id===id);
+  $('novaPasta').disabled=!m;
+  if(!m){
+    pastasAtuais=[];
+    $('tituloMaquina').textContent=maquinas.length?'Selecione uma máquina':'Pastas';
+    $('detalheMaquina').textContent='';$('cabecalho').hidden=true;
+    const box=$('listaPastas');box.textContent='';
+    box.appendChild(vazio('i-pc','Nenhuma máquina selecionada','Escolha uma máquina acima para ver e gerenciar as pastas de backup.'));
+    return;
+  }
+  $('tituloMaquina').textContent='Pastas de '+(m.hostname||'máquina');
+  $('detalheMaquina').textContent=[m.operating_system,m.os_version,'ID '+m.id].filter(Boolean).join(' · ');
+  await carregarPastas();
+}
+
+function vazio(ic,titulo,texto){
+  const d=document.createElement('div');d.className='vazio';
+  d.append(icone(ic,64,'#bdc1c6'));
+  const s=document.createElement('strong');s.textContent=titulo;
+  const p=document.createElement('div');p.textContent=texto;
+  d.append(s,p);return d;
+}
+
+/* ---------- pastas ---------- */
+async function carregarPastas(){
+  if(!maquinaSelecionada)return;
+  const r=await requisicao('/admin/machines/'+encodeURIComponent(maquinaSelecionada)+'/folders');
+  if(!r.ok)throw new Error(await erro(r));
+  pastasAtuais=(await r.json()).folders||[];
+  desenharPastas();
+}
+
+function desenharPastas(){
+  if(!maquinaSelecionada)return;
+  const box=$('listaPastas');box.textContent='';
+  const t=termoBusca();
+  const lista=pastasAtuais.filter(p=>!t||(p.label||'').toLowerCase().includes(t)||(p.path||'').toLowerCase().includes(t));
+  $('cabecalho').hidden=!lista.length;
+  if(!pastasAtuais.length){box.appendChild(vazio('i-pasta','Nenhuma pasta ainda','Clique em “Adicionar pasta” para liberar uma pasta para backup.'));return}
+  if(!lista.length){box.appendChild(vazio('i-busca','Nenhum resultado','Nenhuma pasta corresponde à pesquisa “'+$('busca').value.trim()+'”.'));return}
+  lista.forEach(p=>{
+    const el=document.createElement('div');el.className='linha';
+    const nome=document.createElement('div');nome.className='c-nome';
+    const n=document.createElement('span');n.textContent=p.label||p.path;
+    nome.append(icone('i-pasta',24,p.enabled?'#1a73e8':'#9aa0a6'),n);
+    const cam=document.createElement('div');cam.className='c-caminho';cam.textContent=p.path;
+    const est=document.createElement('div');est.className='c-est';
+    const chip=document.createElement('span');chip.className='chip '+(p.enabled?'on':'off');chip.textContent=p.enabled?'Permitida':'Bloqueada';
+    est.appendChild(chip);
+    const acoes=document.createElement('div');acoes.className='folder-acoes';
+    const sw=document.createElement('button');sw.className='switch';sw.setAttribute('role','switch');
+    sw.setAttribute('aria-checked',p.enabled?'true':'false');
+    sw.title=p.enabled?'Bloquear esta pasta':'Permitir esta pasta';
+    sw.setAttribute('aria-label',sw.title+': '+(p.label||p.path));
+    sw.onclick=()=>alternarPasta(p,sw);
+
+    const excluir=document.createElement('button');
+    excluir.className='btn-excluir';
+    excluir.title='Remover esta pasta';
+    excluir.setAttribute('aria-label','Remover '+(p.label||p.path));
+    excluir.appendChild(icone('i-lixeira',20));
+    excluir.onclick=()=>removerPasta(p,excluir);
+
+    acoes.append(sw,excluir);
+    el.append(nome,cam,est,acoes);box.appendChild(el);
+  });
+}
+
+async function alternarPasta(p,sw){
+  sw.disabled=true;
+  try{
+    const r=await requisicao('/admin/folders/'+encodeURIComponent(p.id),{method:'PATCH',body:JSON.stringify({enabled:!p.enabled})});
+    if(!r.ok){avisar(await erro(r));return}
+    avisar('“'+(p.label||p.path)+'” '+(p.enabled?'bloqueada':'permitida')+' para backup.');
+    await carregarMaquinas();
+  }catch(e){ignorar401(e,avisar)}
+  finally{sw.disabled=false}
+}
+
+async function removerPasta(p,botao){
+  const nome=p.label||p.path;
+  if(!confirm('Remover a pasta “'+nome+'” das pastas permitidas?\\n\\nIsso não apaga os arquivos do computador. Apenas remove o cadastro desta pasta do sistema.'))return;
+
+  botao.disabled=true;
+  try{
+    const r=await requisicao('/admin/folders/'+encodeURIComponent(p.id),{method:'DELETE'});
+    if(!r.ok)throw new Error(await erro(r));
+    avisar('Pasta “'+nome+'” removida.');
+    await carregarMaquinas();
+  }catch(e){
+    ignorar401(e,avisar);
+  }finally{
+    botao.disabled=false;
+  }
+}
+
+/* ---------- abas ---------- */
+function mudarAba(aba){
+  abaAtual=aba;
+  $('abaMaquinas').setAttribute('aria-selected',aba==='maquinas');
+  $('abaAdmins').setAttribute('aria-selected',aba==='admins');
+  $('viewMaquinas').hidden=aba!=='maquinas';
+  $('viewAdmins').hidden=aba!=='admins';
+  $('novaPasta').hidden=aba!=='maquinas';
+  $('novoAdmin').hidden=aba!=='admins';
+  $('busca').placeholder=aba==='admins'?'Pesquisar administradores':'Pesquisar máquinas e pastas';
+  if(aba==='admins')carregarAdmins().catch(e=>ignorar401(e,avisar));
+}
+
+/* ---------- administradores ---------- */
+const CORES_AVATAR=['#1a73e8','#188038','#e37400','#a142f4','#d93025','#007b83','#c5221f','#5f6368','#7b1fa2','#0b8043'];
+function corAvatar(nome){let h=0;for(const c of (nome||'?'))h=(h*31+c.charCodeAt(0))>>>0;return CORES_AVATAR[h%CORES_AVATAR.length]}
+function dataCurta(iso){return iso?new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'—'}
+function acessoRelativo(iso){if(!iso)return 'Nunca entrou';return tempoRelativo(iso).replace('Visto ','')}
+
+async function carregarAdmins(){
+  const r=await requisicao('/admin/users');if(!r.ok)throw new Error(await erro(r));
+  admins=(await r.json()).users||[];
+  desenharAdmins();
+}
+
+function desenharAdmins(){
+  const box=$('listaAdmins');box.textContent='';
+  const t=termoBusca();
+  const ativos=admins.filter(a=>a.active).length;
+  $('adminsDetalhe').textContent=admins.length?(ativos+(ativos===1?' ativo':' ativos')+(admins.length>ativos?' · '+(admins.length-ativos)+' desativado(s)':'')+' · pessoas que podem entrar neste painel'):'Pessoas que podem entrar neste painel.';
+  const lista=admins.filter(a=>!t||a.username.toLowerCase().includes(t));
+  $('adminsCab').hidden=!lista.length;
+  if(!admins.length){box.appendChild(vazio('i-pessoas','Nenhum administrador','Clique em “Novo administrador” para cadastrar.'));return}
+  if(!lista.length){box.appendChild(vazio('i-busca','Nenhum resultado','Nenhum administrador corresponde à pesquisa “'+$('busca').value.trim()+'”.'));return}
+  lista.forEach(a=>{
+    const eu=adminAtual&&(a.id===adminAtual.id||a.username===adminAtual.username);
+    const el=document.createElement('div');el.className='adm-linha'+(a.active?'':' inativo');
+    const nome=document.createElement('div');nome.className='a-nome';
+    const av=document.createElement('span');av.className='avatar';av.textContent=a.username[0];av.style.background=a.active?corAvatar(a.username):'#9aa0a6';
+    const tx=document.createElement('span');tx.className='txt';tx.textContent=a.username;
+    nome.append(av,tx);
+    if(eu){const c=document.createElement('span');c.className='chip voce';c.textContent='Você';nome.appendChild(c)}
+    const criado=document.createElement('div');criado.className='a-data a-criado';criado.textContent=dataCurta(a.created_at);
+    const acesso=document.createElement('div');acesso.className='a-data a-acesso';acesso.textContent=acessoRelativo(a.last_seen);
+    if(a.last_seen)acesso.title=new Date(a.last_seen).toLocaleString('pt-BR');
+    const st=document.createElement('div');st.className='a-status';
+    const chip=document.createElement('span');chip.className='chip '+(a.active?'on':'off');chip.textContent=a.active?'Ativo':'Desativado';st.appendChild(chip);
+    const ac=document.createElement('div');ac.className='a-acoes';
+    const chave=document.createElement('button');chave.className='icone-btn';chave.title=eu?'Alterar minha senha':'Redefinir senha';chave.setAttribute('aria-label',chave.title+' de '+a.username);
+    chave.appendChild(icone('i-chave',20));chave.onclick=()=>abrirDialogSenha(a);
+    const sw=document.createElement('button');sw.className='switch';sw.setAttribute('role','switch');sw.setAttribute('aria-checked',a.active?'true':'false');
+    sw.title=eu?'Você não pode desativar a sua própria conta':(a.active?'Desativar administrador':'Reativar administrador');
+    sw.setAttribute('aria-label',sw.title+': '+a.username);
+    sw.disabled=!!eu;sw.onclick=()=>alternarAdmin(a,sw);
+    ac.append(chave,sw);
+    el.append(nome,criado,acesso,st,ac);box.appendChild(el);
+  });
+}
+
+async function alternarAdmin(a,sw){
+  sw.disabled=true;
+  try{
+    const r=await requisicao('/admin/users/'+encodeURIComponent(a.id),{method:'PATCH',body:JSON.stringify({active:!a.active})});
+    if(!r.ok){avisar(await erro(r));return}
+    avisar(a.username+(a.active?' foi desativado. As sessões dele foram encerradas.':' foi reativado.'));
+    await carregarAdmins();
+  }catch(e){ignorar401(e,avisar)}
+  finally{sw.disabled=false}
+}
+
+function forcaSenha(v){
+  let p=0;if(v.length>=8)p++;if(v.length>=12)p++;if(/[a-z]/.test(v)&&/[A-Z]/.test(v))p++;if(/\d/.test(v))p++;if(/[^A-Za-z0-9]/.test(v))p++;
+  if(!v)return[0,'#e8eaed','Use 8 ou mais caracteres.'];
+  if(v.length<8)return[20,'#d93025','Muito curta: faltam '+(8-v.length)+' caractere(s).'];
+  if(p<=2)return[45,'#e37400','Senha fraca. Misture letras, números e símbolos.'];
+  if(p===3)return[70,'#f9ab00','Senha razoável.'];
+  return[100,'#188038','Senha forte.'];
+}
+$('novaSenha').addEventListener('input',()=>{const[w,c,t]=forcaSenha($('novaSenha').value);$('forcaBarra').style.width=w+'%';$('forcaBarra').style.background=c;$('forcaTexto').textContent=t});
+
+$('novoAdmin').onclick=()=>{
+  ['novoUsuario','novaSenha','novaSenhaConfirma'].forEach(id=>$(id).value='');
+  $('verNovaSenha').checked=false;['novaSenha','novaSenhaConfirma'].forEach(id=>$(id).type='password');
+  $('novaSenha').dispatchEvent(new Event('input'));
+  msgErro('adminMsgBox','adminMsg','');$('dialogAdmin').showModal();$('novoUsuario').focus();
+};
+$('cancelarAdmin').onclick=()=>$('dialogAdmin').close();
+$('verNovaSenha').onchange=e=>['novaSenha','novaSenhaConfirma'].forEach(id=>$(id).type=e.target.checked?'text':'password');
+$('novoUsuario').addEventListener('input',()=>{const el=$('novoUsuario');const v=el.value.toLowerCase().replace(/\s+/g,'.');if(v!==el.value)el.value=v});
+async function salvarAdmin(){
+  const u=$('novoUsuario').value.trim().toLowerCase(),s1=$('novaSenha').value,s2=$('novaSenhaConfirma').value;
+  if(!/^[a-z0-9._-]{3,40}$/.test(u)){msgErro('adminMsgBox','adminMsg','Usuário inválido: use de 3 a 40 caracteres (letras minúsculas, números, ponto, hífen ou sublinhado).');$('novoUsuario').focus();return}
+  if(s1.length<8){msgErro('adminMsgBox','adminMsg','A senha deve ter pelo menos 8 caracteres.');$('novaSenha').focus();return}
+  if(s1!==s2){msgErro('adminMsgBox','adminMsg','As senhas não coincidem.');$('novaSenhaConfirma').focus();return}
+  $('salvarAdmin').disabled=true;
+  try{
+    const r=await requisicao('/admin/users',{method:'POST',body:JSON.stringify({username:u,password:s1})});
+    if(!r.ok)throw new Error(await erro(r));
+    $('dialogAdmin').close();avisar('Administrador “'+u+'” cadastrado.');await carregarAdmins();
+  }catch(e){ignorar401(e,m=>msgErro('adminMsgBox','adminMsg',m))}
+  finally{$('salvarAdmin').disabled=false}
+}
+$('salvarAdmin').onclick=salvarAdmin;
+['novoUsuario','novaSenha','novaSenhaConfirma'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')salvarAdmin()}));
+
+function abrirDialogSenha(a){
+  adminSenhaAlvo=a;
+  const eu=adminAtual&&(a.id===adminAtual.id||a.username===adminAtual.username);
+  $('senhaTitulo').textContent=eu?'Alterar minha senha':'Redefinir senha';
+  $('senhaSub').textContent=eu?'Escolha uma nova senha para a sua conta. Você continuará conectado.':'Defina uma nova senha para '+a.username+'. Se essa pessoa estiver conectada, ela precisará entrar de novo.';
+  ['trocaSenha','trocaSenhaConfirma'].forEach(id=>{$(id).value='';$(id).type='password'});$('verTrocaSenha').checked=false;
+  msgErro('senhaMsgBox','senhaMsg','');$('dialogSenha').showModal();$('trocaSenha').focus();
+}
+$('cancelarSenha').onclick=()=>$('dialogSenha').close();
+$('verTrocaSenha').onchange=e=>['trocaSenha','trocaSenhaConfirma'].forEach(id=>$(id).type=e.target.checked?'text':'password');
+async function salvarSenha(){
+  const s1=$('trocaSenha').value,s2=$('trocaSenhaConfirma').value;
+  if(s1.length<8){msgErro('senhaMsgBox','senhaMsg','A senha deve ter pelo menos 8 caracteres.');$('trocaSenha').focus();return}
+  if(s1!==s2){msgErro('senhaMsgBox','senhaMsg','As senhas não coincidem.');$('trocaSenhaConfirma').focus();return}
+  $('salvarSenha').disabled=true;
+  try{
+    const r=await requisicao('/admin/users/'+encodeURIComponent(adminSenhaAlvo.id),{method:'PATCH',body:JSON.stringify({password:s1})});
+    if(!r.ok)throw new Error(await erro(r));
+    $('dialogSenha').close();avisar('Senha de '+adminSenhaAlvo.username+' atualizada.');
+    if(abaAtual==='admins')await carregarAdmins();
+  }catch(e){ignorar401(e,m=>msgErro('senhaMsgBox','senhaMsg',m))}
+  finally{$('salvarSenha').disabled=false}
+}
+$('salvarSenha').onclick=salvarSenha;
+['trocaSenha','trocaSenhaConfirma'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')salvarSenha()}));
+
+$('abaMaquinas').onclick=()=>mudarAba('maquinas');
+$('abaAdmins').onclick=()=>mudarAba('admins');
+$('irAdmins').onclick=()=>{$('menuConta').hidden=true;mudarAba('admins')};
+$('minhaSenha').onclick=()=>{$('menuConta').hidden=true;abrirDialogSenha({id:adminAtual.id,username:adminAtual.username})};
+
+/* ---------- eventos ---------- */
+$('entrar').onclick=login;
+['usuario','senha','senhaConfirma'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')login()}));
+$('verSenha').onchange=e=>{['senha','senhaConfirma'].forEach(id=>$(id).type=e.target.checked?'text':'password')};
+$('atualizar').onclick=()=>(abaAtual==='admins'?carregarAdmins():carregarMaquinas()).then(()=>avisar('Lista atualizada.')).catch(e=>ignorar401(e,avisar));
+$('btnConta').onclick=e=>{e.stopPropagation();$('menuConta').hidden=!$('menuConta').hidden};
+document.addEventListener('click',e=>{if(!$('menuConta').hidden&&!$('menuConta').contains(e.target))$('menuConta').hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('menuConta').hidden=true});
+$('sair').onclick=async()=>{try{await requisicao('/admin/logout',{method:'POST'})}catch(e){}mostrarLogin()};
+$('busca').addEventListener('input',()=>{$('limparBusca').hidden=!$('busca').value;desenharMaquinas();desenharPastas();desenharAdmins()});
+$('limparBusca').onclick=e=>{e.preventDefault();$('busca').value='';$('limparBusca').hidden=true;desenharMaquinas();desenharPastas();desenharAdmins();$('busca').focus()};
+window.addEventListener('scroll',()=>$('topo').classList.toggle('rolou',scrollY>4));
+
+$('novaPasta').onclick=()=>{
+  const m=maquinas.find(x=>x.id===maquinaSelecionada);
+  $('dialogSub').textContent='A pasta ficará disponível para backup em '+(m?.hostname||'esta máquina')+'.';
+  $('pastaPath').value='';$('pastaLabel').value='';nomeManual=false;msgErro('pastaMsgBox','pastaMsg','');
+  $('dialogPasta').showModal();$('pastaPath').focus();
+};
+$('cancelar').onclick=()=>$('dialogPasta').close();
+async function salvarPasta(){
+  const path=$('pastaPath').value.trim();
+  if(!path){msgErro('pastaMsgBox','pastaMsg','Informe o caminho completo da pasta.');$('pastaPath').focus();return}
+  $('salvar').disabled=true;
+  try{
+    const r=await requisicao('/admin/machines/'+encodeURIComponent(maquinaSelecionada)+'/folders',{method:'POST',body:JSON.stringify({path,label:$('pastaLabel').value.trim()})});
+    if(!r.ok)throw new Error(await erro(r));
+    $('dialogPasta').close();avisar('Pasta adicionada.');await carregarMaquinas();
+  }catch(e){ignorar401(e,m=>msgErro('pastaMsgBox','pastaMsg',m))}
+  finally{$('salvar').disabled=false}
+}
+$('salvar').onclick=salvarPasta;
+['pastaPath','pastaLabel'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')salvarPasta()}));
+// Sugere o nome exibido a partir do último trecho do caminho
+$('pastaPath').addEventListener('input',()=>{if(!nomeManual){const partes=$('pastaPath').value.trim().split(/[\\/]/).filter(Boolean);$('pastaLabel').value=partes[partes.length-1]||''}});
+$('pastaLabel').addEventListener('input',()=>{nomeManual=!!$('pastaLabel').value});
+
+verificarSessao();
+</script>
+</body>
+</html>

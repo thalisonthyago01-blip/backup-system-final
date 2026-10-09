@@ -1,0 +1,2698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backup System</title>
+
+<style>
+:root {
+  --az: #1a73e8;
+  --azh: #1765cc;
+  --sel: #e8f0fe;
+  --tx: #202124;
+  --mut: #5f6368;
+  --bd: #dadce0;
+  --faixa: #f1f3f4;
+  --ok: #188038;
+  --er: #d93025;
+  --wa: #b06000;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #f8fafd;
+  color: var(--tx);
+  font: 14px/1.5 "Google Sans", Roboto, "Segoe UI", Arial, sans-serif;
+}
+
+[hidden] { display: none !important; }
+
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid var(--az);
+  outline-offset: 3px;
+}
+
+.mut { color: var(--mut); }
+.mono { font-family: ui-monospace, Consolas, monospace; }
+.ic { display: inline-flex; flex-shrink: 0; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--bd);
+  background: #fff;
+  color: var(--az);
+  border-radius: 9px;
+  padding: 8px 16px;
+  font-weight: 500;
+}
+
+.btn:hover {
+  background: var(--sel);
+  border-color: #d2e3fc;
+}
+
+.btn.pri {
+  background: var(--az);
+  border-color: var(--az);
+  color: #fff;
+}
+
+.btn.pri:hover { background: var(--azh); }
+button:disabled { opacity: .5; cursor: default; }
+
+.logo {
+  width: 32px;
+  height: 36px;
+  border-radius: 7px;
+  background: var(--az);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ib {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--mut);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ib:hover { background: #edf2fa; }
+
+.msg {
+  margin: 16px 0 0;
+  color: var(--er);
+  font-size: 13px;
+}
+
+.msg:empty { display: none; }
+
+/* Entrada */
+
+#login {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f8fafd;
+}
+
+.entrada-topo {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4.5%;
+  border-bottom: 1px solid #e6eaf0;
+  background: #fff;
+}
+
+.entrada-marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #444746;
+  font-size: 22px;
+  letter-spacing: -.6px;
+}
+
+.entrada-marca .logo {
+  width: 36px;
+  height: 40px;
+}
+
+.entrada-legenda {
+  font-size: 13px;
+  color: #747b86;
+}
+
+.entrada-corpo {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, .8fr);
+  gap: 7%;
+  align-items: center;
+  width: 100%;
+  max-width: 1600px;
+  margin: auto;
+  padding: 64px 7%;
+}
+
+.etiqueta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.9px;
+  color: #657387;
+}
+
+.apresentacao h1 {
+  font-size: clamp(42px, 4.5vw, 72px);
+  line-height: 1.12;
+  font-weight: 400;
+  letter-spacing: -3px;
+  margin: 22px 0 18px;
+}
+
+.apresentacao h1 span { color: var(--az); }
+
+.apresentacao > p {
+  font-size: 18px;
+  color: #626b78;
+  margin: 0;
+}
+
+.ilustracao {
+  height: 270px;
+  position: relative;
+  max-width: 510px;
+  margin: 20px 0 12px;
+}
+
+.orbita {
+  position: absolute;
+  inset: 25px 15px 0 5px;
+  border-radius: 50%;
+  background: #edf2fc;
+}
+
+.folha {
+  position: absolute;
+  width: 148px;
+  height: 188px;
+  border: 1px solid #dce4f1;
+  border-radius: 10px;
+  background: #fff;
+  padding: 23px;
+  box-shadow: 0 8px 24px #3b598410;
+}
+
+.folha-fundo {
+  left: 86px;
+  top: 29px;
+  transform: rotate(-14deg);
+  background: #f9fbff;
+}
+
+.folha-frente {
+  left: 177px;
+  top: 14px;
+  transform: rotate(9deg);
+}
+
+.folha i {
+  display: block;
+  height: 5px;
+  border-radius: 4px;
+  background: #e1e8f3;
+  margin: 12px 0;
+}
+
+.folha i:last-of-type { width: 65%; }
+
+.doc-simbolo {
+  background: #e8f0fe;
+  color: var(--az);
+  border-radius: 5px;
+  width: 28px;
+  height: 33px;
+  font-size: 28px;
+  line-height: 27px;
+  text-align: center;
+}
+
+.doc-bloco {
+  height: 27px;
+  background: #f0f5fe;
+  border-radius: 4px;
+}
+
+.pasta-arte {
+  position: absolute;
+  left: 110px;
+  top: 145px;
+  width: 238px;
+  height: 108px;
+  border-radius: 0 13px 13px 13px;
+  background: #c2d7ff;
+  color: #2556a0;
+  box-shadow: 0 10px 25px #3f6eba12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px;
+}
+
+.pasta-arte::before {
+  content: "";
+  position: absolute;
+  top: -17px;
+  left: 0;
+  width: 95px;
+  height: 19px;
+  border-radius: 10px 18px 0 0;
+  background: #c2d7ff;
+}
+
+.selo-arte {
+  position: absolute;
+  left: 327px;
+  top: 202px;
+  border: 5px solid #f8fafd;
+  background: #e0f0e6;
+  color: var(--ok);
+  border-radius: 50%;
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+}
+
+.recursos {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #647083;
+  font-size: 11px;
+}
+
+.recursos span {
+  padding: 5px 10px;
+  border: 1px solid #dfe5ef;
+  border-radius: 20px;
+}
+
+.painel {
+  width: 100%;
+  max-width: 480px;
+  justify-self: end;
+  border: 1px solid #e2e7ef;
+  border-radius: 24px;
+  padding: 40px;
+  background: #fff;
+  box-shadow: 0 8px 40px #344b7410;
+}
+
+.acesso-icone {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: #eaf1ff;
+  color: #1967d2;
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.painel h2 {
+  font-size: 27px;
+  line-height: 1.25;
+  font-weight: 400;
+  letter-spacing: -.7px;
+  margin: 0 0 10px;
+}
+
+.painel > p.mut { margin: 0; }
+
+.soltar {
+  display: block;
+  width: 100%;
+  background: #f8faff;
+  border: 1.5px dashed #b7c9e7;
+  border-radius: 14px;
+  color: var(--tx);
+  padding: 25px 12px;
+  margin: 28px 0 20px;
+  text-align: center;
+  transition: .15s;
+}
+
+.soltar:hover,
+.soltar.sobre {
+  background: #edf3ff;
+  border-color: var(--az);
+}
+
+.upload-icone {
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  width: 36px;
+  height: 36px;
+  background: #e8f0fe;
+  color: var(--az);
+  border-radius: 50%;
+  font-size: 24px;
+}
+
+.soltar strong {
+  display: block;
+  color: var(--az);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.soltar .mut { font-size: 12px; }
+
+.lembrar-label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--mut);
+}
+
+.lembrar-label input {
+  accent-color: var(--az);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+summary { cursor: pointer; }
+
+#login details { margin: 20px 0 0; }
+
+#login summary {
+  color: var(--az);
+  font-size: 13px;
+}
+
+#login details p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+#login details label {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--mut);
+}
+
+#login details input {
+  width: 100%;
+  margin: 4px 0 12px;
+  padding: 11px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+}
+
+.manual-acesso {
+  padding-top: 20px;
+  border-top: 1px solid #edf0f5;
+}
+
+.entrada-rodape {
+  display: flex;
+  justify-content: space-between;
+  padding: 22px 4.5%;
+  color: #7b8491;
+  font-size: 12px;
+  border-top: 1px solid #e6eaf0;
+}
+
+/* Cabeçalho do painel */
+
+#app {
+  min-height: 100vh;
+  background: #f8fafd;
+}
+
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 78px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 3.5%;
+  background: #fff;
+  border-bottom: 1px solid #e6eaf0;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 21px;
+  color: #444746;
+  min-width: 170px;
+}
+
+.busca {
+  flex: 1;
+  min-width: 0;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: #f0f4fa;
+  color: var(--mut);
+}
+
+.busca:focus-within {
+  background: #fff;
+  box-shadow: 0 0 0 2px #d2e3fc;
+}
+
+.busca input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--tx);
+  outline: 0;
+}
+
+.dir {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: var(--mut);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.pt {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--wa);
+  margin-right: 6px;
+}
+
+.pt.on { background: var(--ok); }
+.pt.off { background: var(--er); }
+
+.computador {
+  position: relative;
+  margin: 0;
+}
+
+.computador summary {
+  color: #445065;
+  font-size: 12px;
+  list-style: none;
+  padding: 10px 13px;
+  border: 1px solid #e1e6ed;
+  border-radius: 9px;
+}
+
+.computador summary::after {
+  content: "⌄";
+  margin-left: 10px;
+}
+
+.computador-info {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  width: 290px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e1e6ed;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px #263c581a;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Conteúdo principal */
+
+.dashboard {
+  width: 93%;
+  max-width: 1600px;
+  margin: auto;
+  padding: 38px 0 64px;
+}
+
+.pagina-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 20px;
+}
+
+.sobretitulo {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: #788499;
+}
+
+.pagina-titulo h1 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 6px 0;
+}
+
+.pagina-titulo p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.pagina-tag {
+  font-size: 12px;
+  color: #607086;
+  border: 1px solid #dce4ef;
+  border-radius: 20px;
+  padding: 7px 13px;
+}
+
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.indicador {
+  background: #fff;
+  border: 1px solid #e1e7ef;
+  border-radius: 16px;
+  padding: 22px 25px;
+  display: grid;
+  gap: 9px;
+}
+
+.indicador > span {
+  font-size: 12px;
+  color: #5e6b7f;
+}
+
+.indicador strong {
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: -.7px;
+  font-weight: 500;
+  color: #253858;
+}
+
+.indicador small {
+  font-size: 11px;
+  color: #7c8797;
+}
+
+/* Envio de arquivos */
+
+.faixa {
+  background: #fff;
+  border: 1px solid #e1e7ef;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  transition: background .15s, border-color .15s;
+}
+
+.faixa.sobre {
+  background: #edf4ff;
+  border-color: var(--az);
+}
+
+.faixa h2,
+.recentes h2 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #344054;
+}
+
+.cartoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.6fr;
+  gap: 16px;
+}
+
+.cartao {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #e0e7f0;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  background: #fff;
+  color: var(--tx);
+  transition: background .15s;
+}
+
+.cartao:hover {
+  background: #f4f8ff;
+  border-color: #b5cef4;
+}
+
+.cartao .caixa {
+  height: 46px;
+  width: 46px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf3ff;
+  color: var(--az);
+  border-radius: 12px;
+}
+
+.cartao b {
+  display: block;
+  margin: 0 0 3px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cartao .mut { font-size: 12px; }
+
+.drop-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #f9fbfe;
+  border: 1.5px dashed #c7d4e7;
+  border-radius: 12px;
+  padding: 20px;
+  color: #536681;
+  font-size: 13px;
+}
+
+.drop-area small {
+  display: block;
+  font-size: 11px;
+  color: #8a96a8;
+  margin-top: 3px;
+}
+
+.drop-seta {
+  font-size: 28px;
+  color: #6a92c9;
+}
+
+.sel {
+  margin-top: 18px;
+  padding: 18px;
+  background: #f8fafd;
+  border: 1px solid #e1e7ef;
+  border-radius: 12px;
+}
+
+#selLista {
+  margin: 10px 0 14px;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--mut);
+  overflow-wrap: anywhere;
+}
+
+.atencao {
+  color: var(--wa);
+  margin: 0 0 14px;
+  font-size: 13px;
+}
+
+.linha {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.barra {
+  height: 5px;
+  margin-top: 16px;
+  background: #e4ebf5;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.barra i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--az);
+}
+
+/* Progresso do backup */
+.progresso-backup {
+  margin-top: 16px;
+  padding: 18px 20px;
+  background: #f8fbff;
+  border: 1px solid #d8e5fa;
+  border-radius: 12px;
+}
+.progresso-cabecalho,
+.progresso-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.progresso-cabecalho { margin-bottom: 12px; }
+.progresso-titulos { min-width: 0; }
+.progresso-titulos strong { display: block; font-size: 13px; font-weight: 600; }
+.progresso-titulos small { display: block; margin-top: 3px; color: #65748b; font-size: 12px; overflow-wrap: anywhere; }
+.progresso-percentual { color: var(--az); font-size: 20px; font-weight: 600; white-space: nowrap; }
+.progresso-trilho {
+  height: 10px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6edf7;
+}
+.progresso-preenchido {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1a73e8, #69a7ff);
+  transition: width .25s ease;
+}
+.progresso-backup.concluido .progresso-preenchido { background: #188038; }
+.progresso-backup.falhou { border-color: #f3c7c3; background: #fff8f7; }
+.progresso-backup.falhou .progresso-preenchido { background: #d93025; }
+.progresso-rodape { margin-top: 9px; color: #637187; font-size: 11px; flex-wrap: wrap; }
+@media (max-width: 620px) {
+  .progresso-backup { padding: 14px; }
+  .progresso-percentual { font-size: 17px; }
+}
+
+/* Lista de backups */
+
+.recentes {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e1e7ef;
+  border-radius: 16px;
+  min-height: 310px;
+}
+
+.cab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.cab h2 { margin: 0; }
+
+.cab p {
+  margin: 0;
+  background: #f0f4fa;
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+
+#btnAtualizar {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+.colunas,
+.item {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 90px 110px 130px 160px;
+  padding: 0 14px;
+  gap: 20px;
+  align-items: center;
+}
+
+.colunas {
+  background: #f8fafd;
+  border-radius: 8px;
+  font-size: 11px;
+  height: 42px;
+  color: var(--mut);
+  font-weight: 500;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  min-height: 83px;
+  border-bottom: 1px solid #eef1f6;
+  border-radius: 6px;
+}
+
+.item:hover { background: #f8faff; }
+
+.nome {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.nome > .ic {
+  color: var(--az);
+  padding: 10px;
+  background: #edf3ff;
+  border-radius: 10px;
+}
+
+.item.ruim .nome > .ic { color: var(--wa); }
+
+.nome b {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hora-backup {
+  font-size: 11px;
+  color: #8690a0;
+}
+
+.chip {
+  display: block;
+  font-size: 11px;
+}
+
+.chip:empty { display: none; }
+.chip.ok { color: var(--ok); }
+.chip.er { color: var(--er); }
+
+.item .col {
+  font-size: 12px;
+  color: #647086;
+}
+
+.acoes-titulo { text-align: right; }
+
+.acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.baixar-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.menu-acoes {
+  position: relative;
+  margin: 0;
+}
+
+.menu-acoes > summary {
+  list-style: none;
+  font-size: 24px;
+  color: #677386;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 34px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.menu-acoes > summary::-webkit-details-marker,
+.computador > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu-acoes[open] > summary,
+.menu-acoes > summary:hover {
+  background: #eaf0f9;
+}
+
+.menu-opcoes {
+  position: absolute;
+  right: 0;
+  top: 38px;
+  width: 190px;
+  background: #fff;
+  border: 1px solid #e1e7ef;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 25px #263c5820;
+  z-index: 10;
+}
+
+.menu-opcoes button {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+  text-align: left;
+  background: none;
+  border-radius: 6px;
+  padding: 11px;
+  font-size: 12px;
+  color: #4b596f;
+}
+
+.menu-opcoes button:hover { background: #f0f4fa; }
+.menu-opcoes .excluir { color: #b3261e; }
+.menu-opcoes .excluir.conf { background: #fce8e6; }
+
+.vazio {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--mut);
+}
+
+/* Restauração e detalhes */
+#restaurarBackup {
+  border: 1px solid #dfe5ee;
+  border-radius: 20px;
+  padding: 28px;
+  width: min(530px, 90vw);
+  color: #344054;
+  box-shadow: 0 20px 60px #182b4433;
+}
+
+#restaurarBackup::backdrop { background: #172b4d66; }
+
+.restore-texto {
+  margin: 16px 0;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.restore-destino {
+  display: block;
+  padding: 12px 14px;
+  margin: 12px 0 18px;
+  background: #f5f8fc;
+  border: 1px solid #e1e7ef;
+  border-radius: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.restore-check {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 13px;
+  color: #475467;
+  margin-bottom: 20px;
+}
+
+.restore-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+#criarBackupJob {
+  border: 1px solid #dfe5ee;
+  border-radius: 20px;
+  padding: 28px;
+  width: min(530px, 90vw);
+  color: #344054;
+  box-shadow: 0 20px 60px #182b4433;
+}
+
+#criarBackupJob::backdrop { background: #172b4d66; }
+
+.job-label {
+  display: block;
+  font-size: 12px;
+  color: #667085;
+  margin: 14px 0 6px;
+}
+
+.job-select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d8e0eb;
+  border-radius: 9px;
+  background: #fff;
+  color: #344054;
+}
+
+.job-path {
+  display: block;
+  margin: 8px 0 20px;
+  color: #7a8799;
+  font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+/* Detalhes e avisos */
+
+#detalhesBackup {
+  border: 1px solid #dfe5ee;
+  border-radius: 20px;
+  padding: 28px;
+  width: min(530px, 90vw);
+  max-height: 85vh;
+  overflow: auto;
+  color: #344054;
+  box-shadow: 0 20px 60px #182b4433;
+}
+
+#detalhesBackup::backdrop { background: #172b4d66; }
+
+.dialog-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.dialog-topo h2 {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+#detalhesConteudo dt {
+  font-size: 11px;
+  color: #718096;
+  margin-top: 16px;
+}
+
+#detalhesConteudo dd {
+  margin: 4px 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+#aviso {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  max-width: min(420px, calc(100vw - 48px));
+  padding: 13px 20px;
+  border-radius: 10px;
+  background: #323232;
+  color: #fff;
+  box-shadow: 0 3px 8px #0003;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+  z-index: 30;
+}
+
+#aviso.on { opacity: 1; }
+#aviso.er { background: #b3261e; }
+
+/* Responsividade */
+
+@media (min-width: 1600px) {
+  .entrada-corpo {
+    gap: 10%;
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .painel {
+    max-width: 510px;
+    padding: 48px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .dir { gap: 10px; }
+  .marca { min-width: 0; }
+
+  .cartoes { grid-template-columns: 1fr 1fr; }
+
+  .drop-area {
+    grid-column: 1 / -1;
+    padding: 15px;
+  }
+
+  .colunas,
+  .item {
+    grid-template-columns: minmax(160px, 1fr) 65px 85px 95px 145px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 950px) {
+  .entrada-corpo {
+    gap: 5%;
+    padding: 48px 5%;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
+  }
+
+  .painel { padding: 28px; }
+  .apresentacao h1 { font-size: 46px; }
+
+  .ilustracao {
+    transform: scale(.85);
+    transform-origin: left center;
+  }
+
+  .recursos { max-width: 300px; }
+}
+
+@media (max-width: 760px) {
+  .topo {
+    height: auto;
+    min-height: 72px;
+    padding: 14px 4%;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .busca {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+    height: 42px;
+  }
+
+  .marca { font-size: 18px; }
+  .dir { gap: 10px; }
+  .dir > span { display: none; }
+
+  .dashboard {
+    width: 92%;
+    padding-top: 26px;
+  }
+
+  .pagina-titulo { margin-bottom: 22px; }
+  .pagina-titulo h1 { font-size: 26px; }
+  .pagina-tag { display: none; }
+
+  .indicadores { gap: 8px; }
+
+  .indicador {
+    padding: 16px 12px;
+    border-radius: 12px;
+  }
+
+  .indicador > span { font-size: 10px; }
+  .indicador strong { font-size: 19px; }
+  .indicador small { font-size: 10px; }
+
+  .faixa, .recentes { padding: 18px; }
+
+  .cartao {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .cartao .caixa {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cartao b { font-size: 12px; }
+  .cartao .mut { display: none; }
+  .colunas { display: none; }
+
+  .item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 12px 0;
+    gap: 8px;
+  }
+
+  .item > .col { display: none; }
+  .nome { gap: 9px; }
+  .nome > .ic { padding: 7px; }
+  .nome b { font-size: 12px; }
+  .baixar-btn { padding: 7px 9px; }
+  .acoes { gap: 3px; }
+
+  .computador summary {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .computador-info { right: -35px; }
+  .drop-area { font-size: 12px; }
+  .vazio { padding: 35px 8px; }
+}
+
+@media (max-width: 700px) {
+  .entrada-topo {
+    height: 72px;
+    padding: 0 24px;
+  }
+
+  .entrada-marca { font-size: 20px; }
+  .entrada-legenda { display: none; }
+
+  .entrada-corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 36px 24px;
+  }
+
+  .apresentacao {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .etiqueta {
+    font-size: 9px;
+    letter-spacing: 1.1px;
+  }
+
+  .apresentacao h1 {
+    font-size: 38px;
+    letter-spacing: -1.6px;
+    margin: 14px 0 10px;
+  }
+
+  .apresentacao h1 br { display: none; }
+  .apresentacao > p { font-size: 14px; }
+  .ilustracao, .recursos { display: none; }
+
+  .painel {
+    max-width: 480px;
+    padding: 28px 24px;
+    border-radius: 20px;
+  }
+
+  .painel h2 { font-size: 25px; }
+
+  .entrada-rodape {
+    padding: 20px 24px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .indicadores { grid-template-columns: 1fr; }
+
+  .indicador { grid-template-columns: 1fr 1fr; }
+  .indicador small { display: none; }
+  .indicador strong { text-align: right; }
+  .baixar-btn .ic { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="login" hidden>
+  <header class="entrada-topo">
+    <a class="entrada-marca" href="./">
+      <span class="logo" id="logoL"></span>
+      Backup System
+    </a>
+    <span class="entrada-legenda">Seu espaço de backups</span>
+  </header>
+
+  <main class="entrada-corpo">
+    <section class="apresentacao" aria-labelledby="tituloInicio">
+      <span class="etiqueta">ARQUIVOS EM ORDEM. ROTINA MAIS LEVE.</span>
+
+      <h1 id="tituloInicio">
+        Um lugar para <br>seus <span>backups.</span>
+      </h1>
+
+      <p>Guarde, encontre e baixe seus arquivos.</p>
+
+      <div class="ilustracao" aria-hidden="true">
+        <div class="orbita"></div>
+
+        <div class="folha folha-fundo">
+          <i></i><i></i><i></i>
+        </div>
+
+        <div class="folha folha-frente">
+          <div class="doc-simbolo">≡</div>
+          <i></i><i></i><i></i>
+          <div class="doc-bloco"></div>
+        </div>
+
+        <div class="pasta-arte">
+          <span>Meus arquivos</span>
+          <svg width="40" height="40" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V6m-4 4 4-4 4 4M5 16v4h14v-4"/>
+          </svg>
+        </div>
+
+        <span class="selo-arte">✓</span>
+      </div>
+
+      <div class="recursos">
+        <span>ZIP</span>
+        <span>Organização por máquina</span>
+        <span>Verificação de integridade</span>
+      </div>
+    </section>
+
+    <section class="painel" aria-labelledby="tituloLogin">
+      <span class="acesso-icone" aria-hidden="true">
+        <svg width="27" height="27" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="5" y="10" width="14" height="11" rx="3"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/>
+        </svg>
+      </span>
+
+      <h2 id="tituloLogin">Acesse seus backups</h2>
+      <p class="mut">Use seu arquivo de acesso para entrar.</p>
+
+      <button type="button" class="soltar" id="bCred">
+        <span class="upload-icone" aria-hidden="true">↑</span>
+        <strong>Selecionar arquivo de acesso</strong>
+        <span class="mut">ou arraste aqui · .json</span>
+      </button>
+
+      <input type="file" id="arqCred"
+             accept=".json,application/json" hidden>
+
+      <label class="lembrar-label">
+        <input type="checkbox" id="lembrar" checked>
+        Lembrar neste computador
+      </label>
+
+      <details class="ajuda-acesso">
+        <summary>Onde encontro meu arquivo?</summary>
+        <p class="mut">
+          Selecione <b>client_state.json</b> na pasta <b>client</b>
+          do projeto. Ele é criado ao registrar seu computador.
+        </p>
+      </details>
+
+      <details class="manual-acesso">
+        <summary>Entrar com credenciais</summary>
+
+        <label for="iid">ID da instalação</label>
+        <input id="iid" autocomplete="off" placeholder="installation_id">
+
+        <label for="ckey">Chave de acesso</label>
+        <input id="ckey" type="password"
+               autocomplete="off" placeholder="client_key">
+
+        <button type="button" class="btn pri" id="btnEntrar">
+          Entrar
+        </button>
+      </details>
+
+      <p class="msg" id="loginMsg" role="alert"></p>
+
+      <button type="button" class="btn" id="btnTentar" hidden>
+        Tentar novamente
+      </button>
+    </section>
+  </main>
+
+  <footer class="entrada-rodape">
+    <span>Backup System</span>
+    <span>Seus arquivos, ao seu alcance.</span>
+  </footer>
+</div>
+
+<div id="app" hidden>
+  <header class="topo">
+    <div class="marca">
+      <span class="logo" id="logoA"></span>
+      <span>Backups</span>
+    </div>
+
+    <label class="busca">
+      <span id="icBusca"></span>
+      <input id="busca" type="search"
+             placeholder="Buscar nos backups"
+             aria-label="Buscar nos backups">
+    </label>
+
+    <div class="dir">
+      <span>
+        <span class="pt" id="pt"></span>
+        <span id="apiTxt">Conectando</span>
+      </span>
+
+      <details class="computador">
+        <summary>Meu computador</summary>
+        <div class="computador-info">
+          <span class="mut">ID do computador</span>
+          <span class="mono" id="maqId"></span>
+        </div>
+      </details>
+
+      <button type="button" class="ib" id="btnSair"
+              title="Sair e esquecer as credenciais"
+              aria-label="Sair e esquecer as credenciais"></button>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="pagina-titulo">
+      <div>
+        <span class="sobretitulo">SEU ESPAÇO</span>
+        <h1>Meus backups</h1>
+        <p class="mut">Seus arquivos organizados em um só lugar.</p>
+      </div>
+
+      <span class="pagina-tag">Armazenamento em ZIP</span>
+    </div>
+
+    <section class="indicadores" aria-label="Resumo dos backups">
+      <div class="indicador">
+        <span>Total de backups</span>
+        <strong id="totalBackups">—</strong>
+        <small>Cópias armazenadas</small>
+      </div>
+
+      <div class="indicador">
+        <span>Espaço utilizado</span>
+        <strong id="totalEspaco">—</strong>
+        <small>Tamanho dos arquivos ZIP</small>
+      </div>
+
+      <div class="indicador">
+        <span>Último backup</span>
+        <strong id="ultimoBackup">—</strong>
+        <small id="ultimaData">Aguardando dados</small>
+      </div>
+    </section>
+
+    <section class="faixa" id="zona">
+      <h2>Criar novo backup</h2>
+
+      <div class="cartoes">
+        <button type="button" class="cartao" id="bPasta">
+          <span class="caixa" id="icPasta"></span>
+          <span>
+            <b>Enviar pasta</b>
+            <span class="mut">Selecione uma pasta</span>
+          </span>
+        </button>
+
+        <button type="button" class="cartao" id="bArq">
+          <span class="caixa" id="icArq"></span>
+          <span>
+            <b>Enviar documentos</b>
+            <span class="mut">Selecione seus arquivos</span>
+          </span>
+        </button>
+
+        <div class="drop-area">
+          <span class="drop-seta" aria-hidden="true">↓</span>
+          <span>
+            Arraste seus arquivos aqui
+            <small>Pastas ou arquivos individuais</small>
+          </span>
+        </div>
+      </div>
+
+      <p class="job-path" style="margin-top:16px">
+        As três opções usam o client instalado: o sistema reconhece a pasta
+        autorizada automaticamente e não pede caminhos de subpastas.
+      </p>
+
+      <section class="progresso-backup" id="progressoBackup" hidden aria-live="polite" aria-atomic="true">
+        <div class="progresso-cabecalho">
+          <div class="progresso-titulos">
+            <strong id="progressoTitulo">Preparando backup</strong>
+            <small id="progressoDescricao">Aguardando o cliente iniciar a tarefa...</small>
+          </div>
+          <strong class="progresso-percentual" id="progressoPercentual">0%</strong>
+        </div>
+        <div class="progresso-trilho" id="progressoTrilho" role="progressbar" aria-label="Progresso do envio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progresso-preenchido" id="progressoBarra"></div>
+        </div>
+        <div class="progresso-rodape">
+          <span id="progressoBytes">0 B de 0 B enviados</span>
+          <span id="progressoArquivos">0 de 0 arquivos</span>
+        </div>
+      </section>
+    </section>
+
+    <section class="recentes">
+      <div class="cab">
+        <h2>Backups recentes</h2>
+        <p class="mut" id="resumo"></p>
+
+        <button type="button" class="btn" id="btnAtualizar">
+          Atualizar
+        </button>
+      </div>
+
+      <div class="colunas">
+        <span>Nome</span>
+        <span>Arquivos</span>
+        <span>Tamanho</span>
+        <span>Criado</span>
+        <span class="acoes-titulo">Ações</span>
+      </div>
+
+      <ul class="lista" id="lista" aria-label="Backups"></ul>
+
+      <p class="vazio" id="semResultados" hidden>
+        Nenhum backup encontrado para esta busca.
+      </p>
+    </section>
+  </main>
+</div>
+
+<dialog id="detalhesBackup" aria-labelledby="tituloDetalhes">
+  <div class="dialog-topo">
+    <h2 id="tituloDetalhes">Detalhes do backup</h2>
+    <button type="button" class="ib" id="fecharDetalhes"
+            aria-label="Fechar detalhes">✕</button>
+  </div>
+
+  <dl id="detalhesConteudo"></dl>
+
+  <button type="button" class="btn" id="copiarDetalhes">
+    Copiar ID
+  </button>
+</dialog>
+
+<dialog id="restaurarBackup" aria-labelledby="tituloRestaurar">
+  <div class="dialog-topo">
+    <h2 id="tituloRestaurar">Restaurar backup</h2>
+    <button type="button" class="ib" id="fecharRestaurar"
+            aria-label="Fechar restauração">✕</button>
+  </div>
+
+  <p class="restore-texto" id="restaurarDescricao"></p>
+
+  <span class="restore-destino" id="restaurarDestino"></span>
+
+  <label class="restore-check">
+    <input type="checkbox" id="restaurarSobrescrever">
+    Sobrescrever arquivos que já existirem
+  </label>
+
+  <div class="restore-acoes">
+    <button type="button" class="btn" id="cancelarRestaurar">Cancelar</button>
+    <button type="button" class="btn pri" id="confirmarRestaurar">Restaurar</button>
+  </div>
+</dialog>
+
+<dialog id="criarBackupJob" aria-labelledby="tituloBackupJob">
+  <div class="dialog-topo">
+    <h2 id="tituloBackupJob">Backup pelo client</h2>
+    <button type="button" class="ib" id="fecharBackupJob" aria-label="Fechar">✕</button>
+  </div>
+  <p class="restore-texto" id="backupJobDescricao">
+    O client abrirá o seletor apropriado e criará a mesma tarefa usada pelo
+    antigo botão "Backup pelo client".
+  </p>
+  <div class="restore-acoes">
+    <button type="button" class="btn" id="cancelarBackupJob">Fechar</button>
+  </div>
+</dialog>
+
+<div id="aviso" role="status" aria-live="polite"></div>
+
+<script>
+const API = "/api";
+const $ = (id) => document.getElementById(id);
+
+let cred = null;
+let maquina = "";
+let pendente = null;
+let tAviso;
+let backupJobTimer = null;
+
+const P = {
+  doc: "M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z",
+  pasta: "M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z",
+  baixar: "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z",
+  busca: "M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
+  sair: "M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z",
+  cliente: "M4 4h16v12H4V4zm2 2v8h12V6H6zm-3 12h18v2H3v-2z"
+};
+
+function ic(d, t = 22) {
+  const e = document.createElement("span");
+  e.className = "ic";
+
+  e.innerHTML =
+    '<svg viewBox="0 0 24 24" width="' + t +
+    '" height="' + t +
+    '" aria-hidden="true"><path fill="currentColor" d="' +
+    d + '"/></svg>';
+
+  return e;
+}
+
+["logoL", "logoA"].forEach((id) => {
+  $(id).append(ic(P.pasta, 18));
+});
+
+$("icBusca").append(ic(P.busca));
+$("btnSair").append(ic(P.sair));
+$("icPasta").append(ic(P.pasta, 26));
+$("icArq").append(ic(P.doc, 26));
+
+/* Credenciais */
+
+function lembrado() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("bs_cred") ||
+      sessionStorage.getItem("bs_cred") ||
+      "null"
+    );
+  } catch (e) {
+    return null;
+  }
+}
+
+function guardar(c, lembrar) {
+  try {
+    localStorage.removeItem("bs_cred");
+    sessionStorage.removeItem("bs_cred");
+
+    (lembrar ? localStorage : sessionStorage)
+      .setItem("bs_cred", JSON.stringify(c));
+  } catch (e) {}
+}
+
+function esquecer() {
+  try {
+    localStorage.removeItem("bs_cred");
+    sessionStorage.removeItem("bs_cred");
+  } catch (e) {}
+
+  cred = null;
+  $("ckey").value = "";
+}
+
+/* Utilitários */
+
+function h(tag, attrs = {}, ...filhos) {
+  const e = document.createElement(tag);
+
+  for (const k in attrs) {
+    if (k === "class") {
+      e.className = attrs[k];
+    } else if (k.startsWith("on")) {
+      e.addEventListener(k.slice(2), attrs[k]);
+    } else {
+      e.setAttribute(k, attrs[k]);
+    }
+  }
+
+  filhos.flat().forEach((f) => e.append(f));
+  return e;
+}
+
+const tamanho = (b) =>
+  b < 1024 ? b + " B" :
+  b < 1048576 ? (b / 1024).toFixed(1) + " KB" :
+  b < 1073741824 ? (b / 1048576).toFixed(1) + " MB" :
+  (b / 1073741824).toFixed(2) + " GB";
+
+function relativo(d) {
+  const s = (d - Date.now()) / 1000;
+  const f = new Intl.RelativeTimeFormat("pt-BR", {
+    numeric: "auto"
+  });
+
+  for (const [u, n] of [
+    ["day", 86400],
+    ["hour", 3600],
+    ["minute", 60]
+  ]) {
+    if (Math.abs(s) >= n) {
+      return f.format(Math.round(s / n), u);
+    }
+  }
+
+  return "agora";
+}
+
+function aviso(texto, tipo) {
+  const a = $("aviso");
+  a.textContent = texto;
+  a.className = "on " + (tipo || "");
+
+  clearTimeout(tAviso);
+
+  tAviso = setTimeout(() => {
+    a.className = "";
+  }, 5000);
+}
+
+function falha(e) {
+  if (e.message !== "401") aviso(e.message, "er");
+}
+
+async function erroDe(r) {
+  try {
+    const j = await r.json();
+    return typeof j.detail === "string"
+      ? j.detail
+      : "Erro " + r.status;
+  } catch (e) {
+    return "Erro " + r.status;
+  }
+}
+
+function pt(ok) {
+  $("pt").className = "pt " + (ok ? "on" : "off");
+  $("apiTxt").textContent = ok ? "Conectado" : "Sem conexão";
+}
+
+/* Entrada */
+
+function telaLogin(msg, rede) {
+  $("app").hidden = true;
+  $("login").hidden = false;
+  $("loginMsg").textContent = msg || "";
+  $("btnTentar").hidden = !rede;
+}
+
+async function tentar(c, lembrar) {
+  let r;
+
+  try {
+    r = await fetch(API + "/machines/authenticate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        installation_id: c.installation_id,
+        client_key: c.client_key
+      })
+    });
+  } catch (e) {
+    return "rede";
+  }
+
+  if (r.status === 401) return "invalida";
+  if (!r.ok) return "servidor";
+
+  let d;
+
+  try {
+    d = await r.json();
+  } catch (e) {
+    return "servidor";
+  }
+
+  cred = c;
+  maquina = d.machine_id || "";
+  guardar(c, lembrar);
+
+  return "ok";
+}
+
+async function entrar(c, lembrar) {
+  pendente = [c, lembrar];
+  $("loginMsg").textContent = "Entrando...";
+
+  const r = await tentar(c, lembrar);
+
+  if (r === "ok") return abrir();
+
+  telaLogin({
+    invalida: "Credenciais inválidas. Confira o arquivo ou os valores digitados.",
+    servidor: "Não foi possível entrar. O servidor respondeu com erro.",
+    rede: "Não foi possível conectar. Confira se o Docker está rodando."
+  }[r], r === "rede");
+}
+
+async function descobrirCredencialLocal() {
+  try {
+    const r = await fetch("http://127.0.0.1:8765/credentials", {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(1200)
+    });
+
+    if (!r.ok) return null;
+    const j = await r.json();
+
+    if (
+      typeof j.installation_id !== "string" ||
+      typeof j.client_key !== "string" ||
+      !j.installation_id.trim() ||
+      !j.client_key.trim()
+    ) return null;
+
+    return {
+      installation_id: j.installation_id.trim(),
+      client_key: j.client_key.trim()
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+async function iniciar() {
+  const local = await descobrirCredencialLocal();
+  if (local) {
+    $("loginMsg").textContent = "Client identificado automaticamente. Entrando...";
+    const resultado = await tentar(local, true);
+    if (resultado === "ok") return abrir();
+  }
+
+  const s = lembrado();
+
+  if (!s || !s.installation_id || !s.client_key) {
+    return telaLogin();
+  }
+
+  let lembrar = false;
+
+  try {
+    lembrar = !!localStorage.getItem("bs_cred");
+  } catch (e) {}
+
+  pendente = [s, lembrar];
+
+  const r = await tentar(s, lembrar);
+
+  if (r === "ok") return abrir();
+
+  if (r === "invalida") {
+    esquecer();
+
+    return telaLogin(
+      "Seu acesso não é mais válido. Selecione o arquivo de acesso novamente."
+    );
+  }
+
+  telaLogin(
+    r === "rede"
+      ? "Não foi possível conectar. Confira se o Docker está rodando."
+      : "O servidor respondeu com erro.",
+    true
+  );
+}
+
+function lerCred(arq) {
+  const fr = new FileReader();
+
+  fr.onload = () => {
+    let j;
+
+    try {
+      j = JSON.parse(fr.result);
+    } catch (e) {}
+
+    if (
+      !j ||
+      typeof j.installation_id !== "string" ||
+      typeof j.client_key !== "string" ||
+      !j.installation_id.trim() ||
+      !j.client_key.trim()
+    ) {
+      $("loginMsg").textContent =
+        "Arquivo de acesso inválido. Selecione o client_state.json.";
+      return;
+    }
+
+    $("iid").value = j.installation_id;
+
+    entrar({
+      installation_id: j.installation_id.trim(),
+      client_key: j.client_key.trim()
+    }, $("lembrar").checked);
+  };
+
+  fr.onerror = () => {
+    $("loginMsg").textContent = "Não foi possível ler o arquivo.";
+  };
+
+  fr.readAsText(arq);
+}
+
+function abrir() {
+  $("login").hidden = true;
+  $("app").hidden = false;
+  $("maqId").textContent = maquina;
+  carregar();
+}
+
+/* API */
+
+async function chamar(caminho, op = {}) {
+  let r;
+
+  try {
+    r = await fetch(API + caminho, {
+      ...op,
+      headers: {
+        "X-Installation-ID": cred.installation_id,
+        "X-Client-Key": cred.client_key,
+        ...(op.headers || {})
+      }
+    });
+  } catch (e) {
+    pt(false);
+    throw new Error("Sem conexão com o servidor.");
+  }
+
+  if (r.status === 401) {
+    esquecer();
+
+    telaLogin(
+      "Seu acesso não é mais válido. Selecione o arquivo de acesso novamente."
+    );
+
+    throw new Error("401");
+  }
+
+  return r;
+}
+
+async function chamarClientLocal(caminho, dados = {}) {
+  let r;
+
+  try {
+    r = await fetch("http://127.0.0.1:8765" + caminho, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(dados),
+      cache: "no-store",
+      signal: AbortSignal.timeout(120000)
+    });
+  } catch (e) {
+    throw new Error(
+      "Não foi possível falar com o client. Mantenha o backup-client.exe agent em execução."
+    );
+  }
+
+  let resposta = null;
+  try {
+    resposta = await r.json();
+  } catch (e) {}
+
+  if (!r.ok) {
+    throw new Error(
+      resposta && typeof resposta.detail === "string"
+        ? resposta.detail
+        : "O client não conseguiu criar o backup."
+    );
+  }
+
+  if (!resposta || !resposta.id) {
+    throw new Error("O client não retornou a tarefa de backup.");
+  }
+
+  return resposta;
+}
+
+function formatarBytes(valor) {
+  const bytes = Math.max(0, Number(valor) || 0);
+  if (bytes < 1024) return `${bytes} B`;
+  const unidades = ["KB", "MB", "GB", "TB"];
+  let tamanho = bytes / 1024;
+  let i = 0;
+  while (tamanho >= 1024 && i < unidades.length - 1) {
+    tamanho /= 1024;
+    i++;
+  }
+  return `${tamanho.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ${unidades[i]}`;
+}
+
+function mostrarProgressoBackup(job, mensagem = "") {
+  const painel = $("progressoBackup");
+  if (!painel) return;
+  painel.hidden = false;
+  painel.classList.toggle("concluido", Boolean(job && job.status === "completed"));
+  painel.classList.toggle("falhou", Boolean(job && job.status === "failed"));
+
+  const percentual = job && job.status === "completed"
+    ? 100
+    : Math.max(0, Math.min(100, Number(job && job.progress_percent) || 0));
+  $("progressoPercentual").textContent = `${percentual}%`;
+  $("progressoBarra").style.width = `${percentual}%`;
+  $("progressoTrilho").setAttribute("aria-valuenow", String(percentual));
+
+  let titulo = "Preparando backup";
+  let descricao = mensagem || "Aguardando o cliente iniciar a tarefa...";
+  if (job) {
+    if (job.status === "pending") {
+      titulo = "Backup na fila";
+      descricao = "Aguardando o cliente aceitar a tarefa...";
+    } else if (job.status === "running") {
+      titulo = percentual >= 100 ? "Envio concluído" : "Enviando arquivos";
+      descricao = job.progress_message || (percentual >= 100
+        ? "Todos os dados foram enviados. Finalizando o backup no servidor..."
+        : "Enviando os dados para o servidor...");
+      if (percentual >= 100 && (!job.progress_message || job.progress_message.startsWith("Enviando:"))) {
+        descricao = "Todos os dados foram enviados. Finalizando o backup no servidor...";
+      }
+    } else if (job.status === "completed") {
+      titulo = "Backup concluído com sucesso";
+      descricao = "Todos os arquivos foram enviados e o backup foi registrado.";
+    } else if (job.status === "failed") {
+      titulo = "Falha no backup";
+      descricao = job.error || "Ocorreu um erro durante o backup.";
+    }
+  }
+  $("progressoTitulo").textContent = titulo;
+  $("progressoDescricao").textContent = descricao;
+
+  const bytesSent = Number(job && job.bytes_sent) || 0;
+  const bytesTotal = Number(job && job.bytes_total) || 0;
+  const filesSent = Number(job && job.files_sent) || 0;
+  const filesTotal = Number(job && job.files_total) || 0;
+  $("progressoBytes").textContent = `${formatarBytes(bytesSent)} de ${formatarBytes(bytesTotal)} enviados`;
+  $("progressoArquivos").textContent = `${filesSent} de ${filesTotal} arquivos`;
+}
+
+async function solicitarBackupLocal(rota, dados, mensagem) {
+  try {
+    const job = await chamarClientLocal(rota, dados);
+    mostrarProgressoBackup({ ...job, status: job.status || "pending" }, mensagem);
+    aviso(mensagem || "Backup enviado ao client. Aguardando execução...");
+    acompanharBackupJob(job.id);
+  } catch (e) {
+    falha(e);
+  }
+}
+
+function abrirBackupPeloClient() {
+  $("criarBackupJob").showModal();
+}
+
+async function iniciarBackupPasta() {
+  $("criarBackupJob").close();
+  await solicitarBackupLocal(
+    "/backup/folder",
+    {},
+    "Selecione a pasta no client. Aguardando execução..."
+  );
+}
+
+async function iniciarBackupArquivos() {
+  $("criarBackupJob").close();
+  await solicitarBackupLocal(
+    "/backup/files",
+    {},
+    "Selecione os documentos no client. Aguardando execução..."
+  );
+}
+
+async function iniciarBackupArrastado(dataTransfer) {
+  if (!dataTransfer) return;
+
+  const itens = [...(dataTransfer.items || [])];
+  const entradas = itens
+    .map((item) => item.webkitGetAsEntry && item.webkitGetAsEntry())
+    .filter(Boolean);
+
+  const entradaPasta = entradas.find((entrada) => entrada.isDirectory);
+  if (entradaPasta) {
+    await solicitarBackupLocal(
+      "/backup/drop",
+      {
+        kind: "folder",
+        name: entradaPasta.name
+      },
+      "Pasta arrastada reconhecida. Backup iniciado automaticamente..."
+    );
+    return;
+  }
+
+  const arquivos = [...(dataTransfer.files || [])];
+  const nomes = arquivos.map((arquivo) => arquivo.name).filter(Boolean);
+
+  if (!nomes.length) {
+    falha(new Error("Não foi possível identificar o item arrastado."));
+    return;
+  }
+
+  await solicitarBackupLocal(
+    "/backup/drop",
+    {
+      kind: "files",
+      names: nomes
+    },
+    "Arquivos arrastados reconhecidos. Backup iniciado automaticamente..."
+  );
+}
+
+async function acompanharBackupJob(jobId) {
+  clearTimeout(backupJobTimer);
+  try {
+    const r = await chamar("/backup-jobs/" + jobId);
+    if (!r.ok) throw new Error(await erroDe(r));
+    const job = await r.json();
+    mostrarProgressoBackup(job);
+
+    if (job.status === "completed") {
+      aviso("Backup concluído com sucesso.");
+      carregar();
+      return;
+    } else if (job.status === "failed") {
+      aviso("Backup falhou: " + (job.error || "erro desconhecido"), "er");
+      return;
+    }
+
+    // O progresso fica no painel; não reapresenta o toast a cada consulta.
+    backupJobTimer = setTimeout(() => acompanharBackupJob(jobId), 600);
+  } catch (e) {
+    falha(e);
+  }
+}
+
+/* Lista e indicadores */
+
+async function carregar() {
+  $("btnAtualizar").disabled = true;
+
+  try {
+    const r = await chamar("/backups");
+
+    if (!r.ok) throw new Error(await erroDe(r));
+
+    const itens = await r.json();
+
+    if (!Array.isArray(itens)) {
+      throw new Error("O servidor retornou uma lista inválida.");
+    }
+
+    pt(true);
+    desenhar(itens);
+  } catch (e) {
+    falha(e);
+  } finally {
+    $("btnAtualizar").disabled = false;
+  }
+}
+
+function desenhar(itens) {
+  itens = [...itens].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  );
+
+  const ul = $("lista");
+  ul.textContent = "";
+
+  $("totalBackups").textContent = itens.length;
+
+  $("totalEspaco").textContent = tamanho(
+    itens.reduce((s, b) => s + Number(b.size), 0)
+  );
+
+  $("ultimoBackup").textContent = itens.length
+    ? relativo(new Date(itens[0].created_at))
+    : "Nenhum ainda";
+
+  $("ultimaData").textContent = itens.length
+    ? new Date(itens[0].created_at).toLocaleString("pt-BR")
+    : "Crie sua primeira cópia";
+
+  $("resumo").textContent =
+    itens.length + (itens.length === 1 ? " backup" : " backups");
+
+  if (!itens.length) {
+    ul.append(h(
+      "li",
+      { class: "vazio" },
+      "Tudo pronto para seu primeiro backup. Envie uma pasta ou seus arquivos acima."
+    ));
+  }
+
+  itens.forEach((b) => ul.append(linha(b)));
+  filtrar();
+}
+
+function filtrar() {
+  const q = $("busca").value.toLowerCase().trim();
+  const linhas = [...document.querySelectorAll("#lista .item")];
+
+  linhas.forEach((li) => {
+    li.hidden = !li.dataset.busca.includes(q);
+  });
+
+  $("semResultados").hidden =
+    !linhas.length || linhas.some((li) => !li.hidden);
+}
+
+function mostrarDetalhes(b) {
+  const dl = $("detalhesConteudo");
+  dl.textContent = "";
+
+  const dados = [
+    ["ID", b.id],
+    ["Arquivo", b.filename],
+    ["Criado em", new Date(b.created_at).toLocaleString("pt-BR")],
+    ["Arquivos", b.files],
+    ["Tamanho", tamanho(b.size)],
+    ["Status", b.status === "completed" ? "Concluído" : b.status],
+    ["Origem", b.source_root || "Não registrada"],
+    ["SHA-256", b.checksum || "Não disponível"]
+  ];
+
+  dados.forEach(([k, v]) => {
+    dl.append(
+      h("dt", {}, k),
+      h("dd", {}, String(v ?? "—"))
+    );
+  });
+
+  $("copiarDetalhes").onclick = () => copiar(b.id);
+  $("detalhesBackup").showModal();
+}
+
+function linha(b) {
+  const d = new Date(b.created_at);
+  const chip = h("span", {
+    class: "chip",
+    "aria-live": "polite"
+  });
+
+  const data = d.toLocaleDateString("pt-BR", {
+    day: "numeric",
+    month: "short"
+  });
+
+  const hora = d.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  const menu = h("details", { class: "menu-acoes" });
+
+  const resumo = h("summary", {
+    "aria-label": "Mais ações para backup de " + data + ", " + hora,
+    title: "Mais ações"
+  }, "⋯");
+
+  const opcoes = h(
+    "div",
+    { class: "menu-opcoes" },
+
+    h("button", {
+      type: "button",
+      onclick: () => {
+        menu.open = false;
+        abrirRestauracao(b);
+      }
+    }, "Restaurar"),
+
+    h("button", {
+      type: "button",
+      onclick: () => {
+        menu.open = false;
+        verificar(b.id, chip);
+      }
+    }, "Verificar integridade"),
+
+    h("button", {
+      type: "button",
+      onclick: () => {
+        menu.open = false;
+        mostrarDetalhes(b);
+      }
+    }, "Detalhes"),
+
+    apagarBtn(b.id)
+  );
+
+  menu.append(resumo, opcoes);
+
+  menu.addEventListener("toggle", () => {
+    if (!menu.open) return;
+
+    document.querySelectorAll(".menu-acoes").forEach((m) => {
+      if (m !== menu) m.open = false;
+    });
+  });
+
+  const textoBusca = (
+    "Backup de " + data + " " + hora + " " +
+    b.id + " " + (b.filename || "")
+  ).toLowerCase();
+
+  return h(
+    "li",
+    {
+      class: "item" + (b.status === "completed" ? "" : " ruim"),
+      "data-busca": textoBusca
+    },
+
+    h(
+      "div",
+      { class: "nome" },
+      ic(P.doc),
+
+      h(
+        "div",
+        { style: "min-width:0" },
+        h("b", {}, "Backup de " + data),
+        h("span", { class: "hora-backup" }, hora),
+        chip
+      )
+    ),
+
+    h("div", { class: "col" }, String(b.files)),
+    h("div", { class: "col" }, tamanho(b.size)),
+
+    h("div", {
+      class: "col",
+      title: d.toLocaleString("pt-BR")
+    }, relativo(d)),
+
+    h(
+      "div",
+      { class: "acoes" },
+
+      h("button", {
+        class: "btn baixar-btn",
+        type: "button",
+        onclick: (e) => baixar(b.id, e.currentTarget)
+      }, ic(P.baixar, 17), "Baixar"),
+
+      menu
+    )
+  );
+}
+
+let restauracaoPendente = null;
+let restauracaoTimer = null;
+
+function abrirRestauracao(backup) {
+  restauracaoPendente = backup;
+  $("restaurarDescricao").textContent =
+    "O client desta máquina receberá a tarefa e executará a restauração em segundo plano.";
+
+  $("restaurarDestino").textContent =
+    "Destino: pasta original registrada no client" +
+    (backup.source_root ? " (origem: " + backup.source_root + ")" : "");
+
+  $("restaurarSobrescrever").checked = false;
+  $("confirmarRestaurar").disabled = false;
+  $("restaurarBackup").showModal();
+}
+
+async function solicitarRestauracao() {
+  if (!restauracaoPendente) return;
+
+  const backup = restauracaoPendente;
+  const botao = $("confirmarRestaurar");
+  botao.disabled = true;
+
+  try {
+    const r = await chamar("/backups/" + backup.id + "/restore", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        destination: "default",
+        overwrite: $("restaurarSobrescrever").checked
+      })
+    });
+
+    if (!r.ok) throw new Error(await erroDe(r));
+
+    const job = await r.json();
+    $("restaurarBackup").close();
+    aviso("Restauração enviada ao client. Aguardando execução...");
+    acompanharRestauracao(job.id);
+  } catch (e) {
+    botao.disabled = false;
+    falha(e);
+  }
+}
+
+async function acompanharRestauracao(jobId) {
+  clearTimeout(restauracaoTimer);
+
+  try {
+    const r = await chamar("/restore-jobs/" + jobId);
+
+    if (!r.ok) throw new Error(await erroDe(r));
+
+    const job = await r.json();
+
+    if (job.status === "pending") {
+      aviso("Restauração aguardando o client...");
+    } else if (job.status === "running") {
+      aviso("Restauração em andamento...");
+    } else if (job.status === "completed") {
+      aviso("Restauração concluída com sucesso.");
+      return;
+    } else if (job.status === "failed") {
+      aviso("Restauração falhou: " + (job.error || "erro desconhecido"), "er");
+      return;
+    }
+
+    restauracaoTimer = setTimeout(() => acompanharRestauracao(jobId), 2500);
+  } catch (e) {
+    falha(e);
+  }
+}
+
+async function copiar(id) {
+  try {
+    await navigator.clipboard.writeText(id);
+    aviso("ID copiado.");
+  } catch (e) {
+    aviso("Não foi possível copiar o ID.", "er");
+  }
+}
+
+async function verificar(id, chip) {
+  chip.className = "chip mut";
+  chip.textContent = "Verificando...";
+
+  try {
+    const r = await chamar("/backups/" + id + "/verify");
+
+    if (!r.ok) throw new Error(await erroDe(r));
+
+    const ok = (await r.json()).integridade === "ok";
+
+    chip.className = "chip " + (ok ? "ok" : "er");
+    chip.textContent = ok
+      ? "Integridade OK"
+      : "Arquivo alterado ou corrompido";
+  } catch (e) {
+    chip.textContent = "";
+    falha(e);
+  }
+}
+
+async function baixar(id, botao) {
+  botao.disabled = true;
+
+  try {
+    const r = await chamar("/backups/" + id + "/download");
+
+    if (!r.ok) throw new Error(await erroDe(r));
+
+    const url = URL.createObjectURL(await r.blob());
+
+    const a = h("a", {
+      href: url,
+      download: "backup-" + id + ".zip"
+    });
+
+    document.body.append(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    aviso("Arquivo enviado para download.");
+  } catch (e) {
+    falha(e);
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+function apagarBtn(id) {
+  let t;
+
+  const b = h("button", {
+    class: "excluir",
+    type: "button"
+  });
+
+  const volta = () => {
+    b.classList.remove("conf");
+    b.textContent = "Excluir backup";
+  };
+
+  volta();
+
+  b.addEventListener("click", async () => {
+    if (!b.classList.contains("conf")) {
+      b.classList.add("conf");
+      b.textContent = "Confirmar exclusão";
+      t = setTimeout(volta, 4000);
+      return;
+    }
+
+    clearTimeout(t);
+    b.disabled = true;
+
+    try {
+      const r = await chamar("/backups/" + id, {
+        method: "DELETE"
+      });
+
+      if (!r.ok) throw new Error(await erroDe(r));
+
+      aviso("Backup excluído.");
+      carregar();
+    } catch (e) {
+      b.disabled = false;
+      volta();
+      falha(e);
+    }
+  });
+
+  return b;
+}
+
+/* Eventos */
+
+["dragover", "drop"].forEach((nome) => {
+  window.addEventListener(nome, (e) => e.preventDefault());
+});
+
+function areaDeSoltar(el, aoSoltar) {
+  el.addEventListener("dragover", () => {
+    el.classList.add("sobre");
+  });
+
+  el.addEventListener("dragleave", (e) => {
+    if (!el.contains(e.relatedTarget)) {
+      el.classList.remove("sobre");
+    }
+  });
+
+  el.addEventListener("drop", (e) => {
+    e.preventDefault();
+    el.classList.remove("sobre");
+    aoSoltar(e.dataTransfer);
+  });
+}
+
+areaDeSoltar($("bCred"), (dt) => {
+  if (dt.files[0]) lerCred(dt.files[0]);
+});
+
+areaDeSoltar($("zona"), (dt) => {
+  iniciarBackupArrastado(dt);
+});
+
+$("bCred").addEventListener("click", () => {
+  $("arqCred").click();
+});
+
+$("arqCred").addEventListener("change", (e) => {
+  if (e.target.files[0]) lerCred(e.target.files[0]);
+  e.target.value = "";
+});
+
+$("btnEntrar").addEventListener("click", () => {
+  const i = $("iid").value.trim();
+  const k = $("ckey").value.trim();
+
+  if (!i || !k) {
+    $("loginMsg").textContent = "Preencha os dois campos.";
+    return;
+  }
+
+  entrar({
+    installation_id: i,
+    client_key: k
+  }, $("lembrar").checked);
+});
+
+[$("iid"), $("ckey")].forEach((campo) => {
+  campo.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") $("btnEntrar").click();
+  });
+});
+
+$("btnTentar").addEventListener("click", () => {
+  if (pendente) entrar(...pendente);
+});
+
+$("btnSair").addEventListener("click", () => {
+  esquecer();
+  telaLogin();
+});
+
+$("btnAtualizar").addEventListener("click", carregar);
+$("busca").addEventListener("input", filtrar);
+
+$("bPasta").addEventListener("click", iniciarBackupPasta);
+$("bArq").addEventListener("click", iniciarBackupArquivos);
+
+$("fecharBackupJob").addEventListener("click", () => $("criarBackupJob").close());
+$("cancelarBackupJob").addEventListener("click", () => $("criarBackupJob").close());
+
+$("fecharRestaurar").addEventListener("click", () => {
+  $("restaurarBackup").close();
+  restauracaoPendente = null;
+});
+
+$("cancelarRestaurar").addEventListener("click", () => {
+  $("restaurarBackup").close();
+  restauracaoPendente = null;
+});
+
+$("confirmarRestaurar").addEventListener("click", solicitarRestauracao);
+
+$("fecharDetalhes").addEventListener("click", () => {
+  $("detalhesBackup").close();
+});
+
+document.addEventListener("click", (e) => {
+  document.querySelectorAll(
+    ".menu-acoes[open], .computador[open]"
+  ).forEach((menu) => {
+    if (!menu.contains(e.target)) menu.open = false;
+  });
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+
+  document.querySelectorAll(
+    ".menu-acoes[open], .computador[open]"
+  ).forEach((menu) => {
+    menu.open = false;
+    menu.querySelector("summary").focus();
+  });
+});
+
+
+iniciar();
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Credenciais e configuracoes privadas
+.env
+.env.*
+!.env.example
+client/client_state.json
+
+# Dados locais e backups
+storage/
+temp/
+*.log
+*.zip
+
+# Executaveis e arquivos gerados
+dist/
+build/
+
+# Sistema operacional e editor
+Thumbs.db
+.DS_Store
+.vscode/

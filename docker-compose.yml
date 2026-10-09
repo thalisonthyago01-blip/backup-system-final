@@ -1,0 +1,56 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: backup-api
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: backup_system
+      DB_USER: backup_user
+      DB_PASSWORD: backup_password
+    depends_on:
+      - backup
+      - postgres
+
+  backup:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backup
+    container_name: backup-service
+    expose:
+      - "8001"
+    volumes:
+      - backup-storage:/app/storage
+      - backup-temp:/app/temp
+
+  postgres:
+    image: postgres:16
+    container_name: backup-postgres
+    environment:
+      POSTGRES_DB: backup_system
+      POSTGRES_USER: backup_user
+      POSTGRES_PASSWORD: backup_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    expose:
+      - "5432"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: backup-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  backup-storage:
+  backup-temp:
+  postgres-data:
