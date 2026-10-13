@@ -12,6 +12,7 @@ import hashlib
 from collections import Counter
 from datetime import datetime, timezone
 
+from backup import multipart_limits as _multipart_limits  # noqa: F401
 from backup.services.compression import compactar_arquivos
 
 

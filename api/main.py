@@ -19,6 +19,7 @@ from fastapi.openapi.docs import (
 
 from pydantic import BaseModel, Field
 
+from api import multipart_limits as _multipart_limits  # noqa: F401
 from api.openapi import custom_openapi
 from api.docs import custom_docs
 
@@ -446,14 +447,14 @@ async def criar_backup(
 
     for index, file in enumerate(files):
 
-        conteudo = await file.read()
-
+        # Repassa o arquivo temporário do UploadFile diretamente ao HTTPX.
+        # Evita carregar cada arquivo inteiro em RAM antes do encaminhamento.
         arquivos.append(
             (
                 "files",
                 (
                     file.filename,
-                    conteudo,
+                    file.file,
                     file.content_type
                 )
             )

@@ -13,7 +13,8 @@ def compactar_arquivos(
     with ZipFile(
         destino,
         "w",
-        ZIP_DEFLATED
+        ZIP_DEFLATED,
+        compresslevel=1  # prioriza velocidade em backups grandes
     ) as zip_file:
 
         for arquivo in arquivos:

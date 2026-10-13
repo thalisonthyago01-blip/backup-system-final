@@ -7,6 +7,9 @@ services:
     ports:
       - "8000:8000"
     environment:
+      # Limites finitos altos para multipart com muitos arquivos/caminhos.
+      BACKUP_MAX_MULTIPART_FILES: 100000
+      BACKUP_MAX_MULTIPART_FIELDS: 100000
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: backup_system
@@ -21,6 +24,9 @@ services:
       context: .
       dockerfile: docker/Dockerfile.backup
     container_name: backup-service
+    environment:
+      BACKUP_MAX_MULTIPART_FILES: 100000
+      BACKUP_MAX_MULTIPART_FIELDS: 100000
     expose:
       - "8001"
     volumes:
